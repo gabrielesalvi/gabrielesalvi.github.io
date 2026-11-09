@@ -1,0 +1,114 @@
+# Testi dell'interfaccia e della home in italiano (it) e inglese (en). I dati del CV sono in cv/cv.yaml.
+it:
+  radice: /
+  altra: {sigla: EN, url: /en/, lingua: en, nome: English}
+  locale: it_IT
+  titolo_home: "Gabriele Salvi · Ingegnere meccanico prestato all'AI"
+  descrizione: "Gabriele Salvi, ingegnere meccanico prestato all'intelligenza artificiale: agenti AI per le aziende, formazione sull'AI generativa, blog."
+  salta: Vai al contenuto
+  tema: Cambia tema chiaro/scuro
+  nav: {bio: Bio, cv: CV, blog: Blog, contatti: Contatti}
+  piede: Fatto a Brescia
+  ciao: Ciao, sono
+  ruolo: "Ingegnere meccanico prestato all'<em>intelligenza artificiale</em>."
+  sotto: "Sviluppo agenti AI per le aziende e insegno a usare l'AI generativa, tra aule aziendali e scuole superiori."
+  scrivimi: Scrivimi
+  leggi_bio: Leggi la bio
+  giorno: ☀︎ giorno
+  sera: ☾ sera
+  avanzamento: Avanzamento della giornata
+  adesso: Adesso
+  adesso_big: Agenti AI per le aziende
+  adesso_sotto: con MicroLabX · KPS Financial Lab
+  percorso: Percorso · CV
+  oggi: oggi
+  ultimo: Ultimo articolo
+  blog_titolo: Appunti di strada tra ingegneria e AI
+  blog_vuoto: Il primo articolo è in arrivo.
+  competenze: Competenze
+  chips1: [Agenti AI, AI generativa, Python, OpenClaw, Linux, Formazione]
+  chips2: [SolidWorks, OpenFOAM, CFD, MATLAB, C, Public speaking]
+  competenze_fondo: Dalla meccanica al codice, e ritorno.
+  hackathon_sotto: CabChat, costruito in 24 ore
+  contatti: Contatti
+  copia: Copia indirizzo
+  copiato: Copiato ✓
+  altrove: Altrove
+  chiudi: Chiudi
+  bio_eti: 01 · Bio
+  bio_h2: "Chi <em>sono</em>"
+  bio_lead: "Ingegnere meccanico prestato all'intelligenza artificiale."
+  bio:
+    - "Mi sono laureato in Ingegneria Meccanica all'Università di Brescia con una tesi sui dati delle app di monitoraggio dell'attività fisica, usati per dimensionare il pacco batterie di una carrozzina autobilanciante per persone con disabilità. Poi un tirocinio in una fonderia di alluminio, tra progettazione meccanica e fluidodinamica computazionale."
+    - "Nel frattempo l'intelligenza artificiale si è presa sempre più spazio. Nel 2023 ho co-fondato StudyBuddy, l'app all-in-one per studenti universitari, e con il mio team ho vinto il NOI Hackathon costruendo in 24 ore CabChat, un'interfaccia vocale per tassisti."
+    - "Oggi sviluppo agenti AI autonomi per le aziende nel progetto MicroLabX di KPS Financial Lab. Come formatore certificato AIFIA porto l'AI generativa nelle aziende e nelle scuole superiori: da dove arriva, quali strumenti usare e come farla lavorare nello studio e nel lavoro di tutti i giorni."
+    - "Qui scrivo di quello che imparo strada facendo."
+  vedi_cv: Vedi il CV
+  leggi_blog: Leggi il blog
+  cv_eti: 02 · Curriculum
+  cv_h2: "Per<em>corso</em>"
+  e: e
+  tesi: Tesi
+  cv_pdf_it: CV in italiano (PDF) ↓
+  cv_pdf_en: CV in English (PDF) ↓
+  con_eti: 03 · Contatti
+  con_h2: "Parlia<em>mone</em>"
+  con_lead: "Per un progetto, un corso o una domanda: scrivimi a {mail} oppure su {linkedin}."
+  scrivi_mail: Scrivi una mail
+
+en:
+  radice: /en/
+  altra: {sigla: IT, url: /, lingua: it, nome: Italiano}
+  locale: en_GB
+  titolo_home: "Gabriele Salvi · Mechanical engineer on loan to AI"
+  descrizione: "Gabriele Salvi, a mechanical engineer on loan to artificial intelligence: AI agents for businesses, generative AI training, blog."
+  salta: Skip to content
+  tema: Toggle light/dark theme
+  nav: {bio: About, cv: CV, blog: Blog, contatti: Contact}
+  piede: Made in Brescia
+  ciao: Hi, I'm
+  ruolo: "Mechanical engineer on loan to <em>artificial intelligence</em>."
+  sotto: "I build AI agents for businesses and teach people how to use generative AI, in company training rooms and high school classrooms."
+  scrivimi: Get in touch
+  leggi_bio: Read more
+  giorno: ☀︎ day
+  sera: ☾ night
+  avanzamento: How far the day has gone
+  adesso: Now
+  adesso_big: AI agents for businesses
+  adesso_sotto: with MicroLabX · KPS Financial Lab
+  percorso: Path · CV
+  oggi: now
+  ultimo: Latest post
+  blog_titolo: Notes from the road between engineering and AI
+  blog_vuoto: First post coming soon (in Italian).
+  competenze: Skills
+  chips1: [AI agents, Generative AI, Python, OpenClaw, Linux, Training]
+  chips2: [SolidWorks, OpenFOAM, CFD, MATLAB, C, Public speaking]
+  competenze_fondo: From mechanics to code, and back.
+  hackathon_sotto: CabChat, built in 24 hours
+  contatti: Contact
+  copia: Copy address
+  copiato: Copied ✓
+  altrove: Elsewhere
+  chiudi: Close
+  bio_eti: 01 · About
+  bio_h2: "About <em>me</em>"
+  bio_lead: "Mechanical engineer on loan to artificial intelligence."
+  bio:
+    - "I graduated in Mechanical Engineering from the University of Brescia with a thesis on data from fitness-tracking apps, used to size the battery pack of a self-balancing wheelchair for people with disabilities. Then came an internship at an aluminium foundry, between mechanical design and computational fluid dynamics."
+    - "Meanwhile, artificial intelligence kept taking up more of my time. In 2023 I co-founded StudyBuddy, the all-in-one app for university students, and my team and I won the NOI Hackathon by building CabChat, a voice interface for taxi drivers, in 24 hours."
+    - "Today I develop autonomous AI agents for businesses as part of KPS Financial Lab's MicroLabX project. As an AIFIA-certified trainer, I bring generative AI to companies and high schools: where it comes from, which tools to use and how to put it to work in everyday study and work."
+    - "Here I write about what I learn along the way, mostly in Italian."
+  vedi_cv: See my CV
+  leggi_blog: Read the blog
+  cv_eti: 02 · Curriculum vitae
+  cv_h2: "My <em>path</em>"
+  e: and
+  tesi: Thesis
+  cv_pdf_it: CV in Italian (PDF) ↓
+  cv_pdf_en: CV in English (PDF) ↓
+  con_eti: 03 · Contact
+  con_h2: "Let's <em>talk</em>"
+  con_lead: "For a project, a course or just a question: email me at {mail} or find me on {linkedin}."
+  scrivi_mail: Send an email

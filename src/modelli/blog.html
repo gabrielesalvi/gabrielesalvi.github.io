@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block corpo %}
+  <main class="foglio" id="contenuto">
+    <span class="mono soft">Blog</span>
+    <h1 class="titolo">Scrit<em>ti</em></h1>
+    {% for a in articoli %}
+    <a class="art" href="{{ a.url }}"><span class="arte" style="{{ a.arte }}"></span><div><span class="mono soft">{{ a.data_lunga }}{% if a.tag %} · {{ a.tag|join(', ') }}{% endif %}{% if a.bozza %} · BOZZA{% endif %}</span><h3>{{ a.titolo }}</h3>{% if a.descrizione %}<p>{{ a.descrizione }}</p>{% endif %}</div><span class="mono soft">{{ a.minuti }} min</span></a>
+    {% else %}
+    <p class="vuoto">Il primo articolo è in arrivo. Nel frattempo puoi <a href="/blog/feed.xml">seguire il feed RSS</a> o <a href="/#contatti">scrivermi</a>.</p>
+    {% endfor %}
+  </main>
+{% endblock %}

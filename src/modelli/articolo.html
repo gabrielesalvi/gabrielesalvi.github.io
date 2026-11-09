@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block testa %}
+<meta property="article:published_time" content="{{ a.data_iso }}">
+<script type="application/ld+json">{{ a.ld|safe }}</script>
+{% endblock %}
+{% block corpo %}
+  <main class="foglio" id="contenuto">
+    <article class="articolo">
+      <div class="arte testata" style="{{ a.arte }}" aria-hidden="true"></div>
+      <span class="mono soft"><a href="/blog/" style="text-decoration:none">Blog</a>{% if a.tag %} · {{ a.tag|join(', ') }}{% endif %}{% if a.bozza %} · BOZZA, non pubblicato{% endif %}</span>
+      <h1 class="titolo">{{ a.titolo }}</h1>
+      <div class="meta mono soft"><time datetime="{{ a.data_iso }}">{{ a.data_lunga }}</time><span>{{ a.minuti }} min di lettura</span></div>
+      <div class="prosa">
+{{ a.html|safe }}
+      </div>
+      <a class="b indietro" href="/blog/">← Tutti gli articoli</a>
+    </article>
+  </main>
+{% endblock %}

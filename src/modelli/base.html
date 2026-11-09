@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ titolo }}</title>
+<meta name="description" content="{{ descrizione }}">
+<meta name="author" content="Gabriele Salvi">
+<link rel="canonical" href="{{ sito }}{{ percorso }}">
+{% if alterna %}
+<link rel="alternate" hreflang="it" href="{{ sito }}/">
+<link rel="alternate" hreflang="en" href="{{ sito }}/en/">
+<link rel="alternate" hreflang="x-default" href="{{ sito }}/">
+{% endif %}
+<meta property="og:type" content="{{ og_tipo|default('website') }}">
+<meta property="og:site_name" content="Gabriele Salvi">
+<meta property="og:locale" content="{{ t.locale }}">
+<meta property="og:title" content="{{ titolo }}">
+<meta property="og:description" content="{{ descrizione }}">
+<meta property="og:url" content="{{ sito }}{{ percorso }}">
+<meta property="og:image" content="{{ sito }}/assets/og-{{ lang }}.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f4f6" media="(prefers-color-scheme: light)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="alternate" type="application/rss+xml" title="Gabriele Salvi · Blog" href="/blog/feed.xml">
+<link rel="preload" href="/assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/sito.css?v={{ versione }}">
+<script>document.documentElement.classList.add('js');try{const t=localStorage.getItem('gs-tema');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+{% block testa %}{% endblock %}
+</head>
+<body>
+<a class="salta" href="#contenuto">{{ t.salta }}</a>
+<div class="page">
+  <header class="top">
+    <a class="marchio" href="{{ t.radice }}"><span class="q">GS</span>Gabriele Salvi</a>
+    <nav class="mono" aria-label="{{ 'Sezioni' if lang == 'it' else 'Sections' }}">
+      <a href="{{ t.radice }}#bio">{{ t.nav.bio }}</a><a href="{{ t.radice }}#cv">{{ t.nav.cv }}</a><a href="/blog/"{% if sezione == 'blog' %} aria-current="page"{% endif %}>{{ t.nav.blog }}</a><a href="{{ t.radice }}#contatti">{{ t.nav.contatti }}</a>
+    </nav>
+    <a class="lingua mono" href="{{ t.altra.url }}" hreflang="{{ t.altra.lingua }}" lang="{{ t.altra.lingua }}" title="{{ t.altra.nome }}">{{ t.altra.sigla }}</a>
+    <button class="tema" id="tema" type="button" aria-label="{{ t.tema }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></button>
+  </header>
+{% block corpo %}{% endblock %}
+  <footer class="mono"><span>© {{ anno }} Gabriele Salvi</span><span><a href="/blog/feed.xml">RSS</a> · {{ t.piede }}</span></footer>
+</div>
+{% block dopo %}{% endblock %}
+<script src="/assets/sito.js?v={{ versione }}" defer></script>
+</body>
+</html>

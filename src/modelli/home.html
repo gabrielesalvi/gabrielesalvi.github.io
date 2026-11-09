@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block corpo %}
+  <main class="bento" id="bento">
+    <a class="t intro apri" href="{{ t.radice }}#bio" data-apri="bio" style="--i:0" id="contenuto">
+      <div class="etich mono"><span>{{ t.ciao }}</span><span class="freccia" aria-hidden="true">→</span></div>
+      <h1>Gabriele<br>Salvi<em>.</em></h1>
+      <p class="ruolo">{{ t.ruolo|safe }}</p>
+      <p class="sotto">{{ t.sotto }}</p>
+      <div class="azioni">
+        <span class="b pieno" data-apri="contatti">{{ t.scrivimi }}</span>
+        <span class="b">{{ t.leggi_bio }}</span>
+      </div>
+    </a>
+
+    <figure class="t foto{% if foto %} con-foto{% endif %}" style="--i:1">{% if foto %}<img src="/assets/{{ foto.nome }}" alt="Gabriele Salvi" width="{{ foto.w }}" height="{{ foto.h }}" fetchpriority="high">{% else %}<div class="ini" aria-hidden="true">GS</div>{% endif %}</figure>
+
+    <div class="t ora" style="--i:2">
+      <div class="etich mono"><span>Brescia, IT</span><span id="fascia" data-giorno="{{ t.giorno }}" data-sera="{{ t.sera }}">☀︎</span></div>
+      <div class="cifre" id="cifre">--:--<span class="sec">--</span></div>
+      <div class="arco" title="{{ t.avanzamento }}"><i id="arco" style="width:0"></i></div>
+    </div>
+
+    <div class="t stato" style="--i:3">
+      <div class="etich mono"><span>{{ t.adesso }}</span></div>
+      <p class="big"><i class="puntino"></i>{{ t.adesso_big }}</p>
+      <p class="mono soft" style="margin-top:6px">{{ t.adesso_sotto }}</p>
+    </div>
+
+    <a class="t cv apri" href="{{ t.radice }}#cv" data-apri="cv" style="--i:4">
+      <div class="etich mono"><span>{{ t.percorso }}</span><span class="freccia" aria-hidden="true">→</span></div>
+      <div class="linea">
+        {% for e in c.esperienze|sort(attribute='inizio') %}
+        <div><span class="mono soft">{{ e.inizio[:4] }}{% if loop.last %} — {{ t.oggi }}{% endif %}</span><b>{{ e.ruolo_breve|default(e.ruolo) }}</b><span class="soft">{{ e.breve }}</span></div>
+        {% endfor %}
+      </div>
+    </a>
+
+    <a class="t post apri" href="{{ articoli[0].url if articoli else '/blog/' }}" style="--i:5">
+      <div class="arte" style="{{ articoli[0].arte if articoli else '' }}"></div>
+      <div class="corpo">
+        {% if articoli %}
+        <div class="etich mono"><span>{{ t.ultimo }}</span><span class="freccia" aria-hidden="true">→</span></div>
+        <span class="mono soft">{{ articoli[0].data_breve }} · {{ articoli[0].minuti }} min</span>
+        <h3 lang="it">{{ articoli[0].titolo }}</h3>
+        {% if articoli|length > 1 %}
+        <div class="altri mono soft" lang="it">
+          {% for a in articoli[1:3] %}<span><span>{{ a.titolo|truncate(28, true, '…') }}</span><span>{{ a.data_punti }}</span></span>{% endfor %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="etich mono"><span>Blog</span><span class="freccia" aria-hidden="true">→</span></div>
+        <h3>{{ t.blog_titolo }}</h3>
+        <p class="soft">{{ t.blog_vuoto }}</p>
+        {% endif %}
+      </div>
+    </a>
+
+    <div class="t stack" style="--i:6">
+      <div class="etich mono"><span>{{ t.competenze }}</span></div>
+      <div style="overflow:hidden" aria-hidden="true">
+        <div class="nastro mono">{% for x in t.chips1 + t.chips1 %}<span class="chip">{{ x }}</span>{% endfor %}</div>
+        <div class="nastro inv mono">{% for x in t.chips2 + t.chips2 %}<span class="chip">{{ x }}</span>{% endfor %}</div>
+      </div>
+      <p class="fondo soft">{{ t.competenze_fondo }}</p>
+    </div>
+
+    <div class="t num" style="--i:7">
+      <div class="etich mono"><span>NOI Hackathon 2023</span></div>
+      <div class="v">1<sup>{{ '°' if lang == 'it' else 'st' }}</sup></div>
+      <p class="mono soft">{{ t.hackathon_sotto }}</p>
+    </div>
+
+    <div class="t mail apri" data-apri="contatti" style="--i:8">
+      <div class="etich mono"><span>{{ t.contatti }}</span><span class="freccia" aria-hidden="true">→</span></div>
+      <p class="ind">{{ cv.email }}</p>
+      <button class="copia mono" id="copia" type="button" data-ind="{{ cv.email }}" data-ok="{{ t.copiato }}">{{ t.copia }}</button>
+    </div>
+
+    <div class="t social" style="--i:9">
+      <div class="etich mono"><span>{{ t.altrove }}</span></div>
+      <div class="icone">
+        <a href="https://www.linkedin.com/in/{{ cv.linkedin }}/" aria-label="LinkedIn" rel="me noopener" target="_blank">{{ icone.linkedin|safe }}</a>
+        <a href="https://github.com/{{ cv.github }}" aria-label="GitHub" rel="me noopener" target="_blank">{{ icone.github|safe }}</a>
+        <a href="https://microlabx.it" aria-label="MicroLabX" rel="noopener" target="_blank">{{ icone.microlab|safe }}</a>
+      </div>
+    </div>
+  </main>
+{% endblock %}
+
+{% block dopo %}
+<div class="velo" id="velo"></div>
+
+<section class="pannello" id="p-bio" aria-label="{{ t.nav.bio }}" role="dialog">
+  <button class="chiudi" type="button" aria-label="{{ t.chiudi }}">×</button>
+  <span class="mono soft">{{ t.bio_eti }}</span>
+  <h2>{{ t.bio_h2|safe }}</h2>
+  <p class="lead">{{ t.bio_lead }}</p>
+  {% for p in t.bio %}<p>{{ p }}</p>
+  {% endfor %}
+  <div class="azioni"><a class="b pieno" href="{{ t.radice }}#cv" data-apri="cv">{{ t.vedi_cv }}</a><a class="b" href="/blog/">{{ t.leggi_blog }}</a></div>
+</section>
+
+<section class="pannello" id="p-cv" aria-label="{{ t.nav.cv }}" role="dialog">
+  <button class="chiudi" type="button" aria-label="{{ t.chiudi }}">×</button>
+  <span class="mono soft">{{ t.cv_eti }}</span>
+  <h2>{{ t.cv_h2|safe }}</h2>
+  {% for e in c.esperienze %}
+  <div class="esp"><span class="mono soft">{{ e.date }}</span><div><b>{{ e.ruolo }} · {{ e.ente }}</b><p>{{ e.testo }}</p></div></div>
+  {% endfor %}
+  <div class="duo">
+    <div><h3 class="mono">{{ c.titoli.istruzione }}</h3>
+      {% for s in c.istruzione %}
+      <div class="esp stretta"><span class="mono soft">{{ s.date }}</span><div><b>{{ s.titolo }}</b><p>{{ s.dove }}</p></div></div>
+      {% endfor %}
+    </div>
+    <div><h3 class="mono">{{ c.titoli.riconoscimenti }} {{ t.e }} {{ c.titoli.certificazioni|lower }}</h3>
+      {% for r in c.riconoscimenti %}
+      <div class="esp stretta"><span class="mono soft">2023</span><div><b>{{ r.titolo }}</b><p>{{ r.testo }} <a href="{{ r.link }}" rel="noopener" target="_blank">{{ r.etichetta }} ↗</a></p></div></div>
+      {% endfor %}
+      {% for x in c.certificazioni %}{% set p = x.split(' · ') %}
+      <div class="esp stretta"><span class="mono soft">{{ p[1][-4:] }}</span><div><b>{{ p[0] }}</b><p>{{ p[1][:-5] }}</p></div></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="blocco"><h3 class="mono">{{ c.titoli.progetti }}</h3>
+    {% for p in c.progetti %}<div class="esp"><span class="mono soft">{{ t.tesi }}</span><div><b>{{ p.titolo }}</b><p>{{ p.testo }}</p></div></div>{% endfor %}
+  </div>
+  <div class="blocco"><h3 class="mono">{{ c.titoli.competenze }}</h3>
+    <div class="chips mono">{% for g in c.competenze %}{% for v in g.voci %}<span class="chip">{{ v }}</span>{% endfor %}{% endfor %}</div>
+  </div>
+  <div class="scarica">
+    {% set pdf_it %}<a class="b{% if lang == 'it' %} pieno{% endif %}" href="/cv/gabriele-salvi-cv-it.pdf" download hreflang="it">{{ t.cv_pdf_it }}</a>{% endset %}
+    {% set pdf_en %}<a class="b{% if lang == 'en' %} pieno{% endif %}" href="/cv/gabriele-salvi-cv-en.pdf" download hreflang="en">{{ t.cv_pdf_en }}</a>{% endset %}
+    {{ (pdf_it ~ pdf_en) if lang == 'it' else (pdf_en ~ pdf_it) }}
+  </div>
+</section>
+
+<section class="pannello" id="p-contatti" aria-label="{{ t.nav.contatti }}" role="dialog">
+  <button class="chiudi" type="button" aria-label="{{ t.chiudi }}">×</button>
+  <span class="mono soft">{{ t.con_eti }}</span>
+  <h2>{{ t.con_h2|safe }}</h2>
+  {% set m %}<a href="mailto:{{ cv.email }}">{{ cv.email }}</a>{% endset %}
+  {% set l %}<a href="https://www.linkedin.com/in/{{ cv.linkedin }}/" rel="noopener" target="_blank">LinkedIn</a>{% endset %}
+  <p class="lead">{{ t.con_lead|replace('{mail}', m)|replace('{linkedin}', l)|safe }}</p>
+  <div class="azioni">
+    <a class="b pieno" href="mailto:{{ cv.email }}">{{ t.scrivi_mail }}</a>
+    <a class="b" href="https://www.linkedin.com/in/{{ cv.linkedin }}/" rel="noopener" target="_blank">LinkedIn ↗</a>
+    <a class="b" href="https://github.com/{{ cv.github }}" rel="noopener" target="_blank">GitHub ↗</a>
+  </div>
+</section>
+{% endblock %}

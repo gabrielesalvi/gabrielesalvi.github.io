@@ -1,0 +1,46 @@
+# Curriculum di Gabriele Salvi: unica fonte per il pannello CV del sito e per i PDF (cv-it.pdf, cv-en.pdf).
+# I sorgenti LaTeX originali sono in ../../../docs/cv_ita.tex e cv_eng.tex: se cambiano, aggiornare anche qui.
+# Le esperienze seguono l'ordine del .tex. "inizio" (AAAA-MM) ordina la linea del tempo della home, "ruolo_breve" (facoltativo) la accorcia.
+
+nome: Gabriele Salvi
+github: gabrielesalvi
+linkedin: gabrielesalvi
+email: salvigab25@gmail.com
+
+it:
+  titoli: {esperienza: Esperienza lavorativa, istruzione: Istruzione, progetti: Progetti, riconoscimenti: Riconoscimenti, certificazioni: Certificazioni, competenze: Competenze, aggiornato: Ultimo aggiornamento}
+  esperienze:
+    - {ruolo: Consulente AI, ente: Autonomo, date: Mag 2025 – oggi, inizio: "2025-05", breve: MicroLabX, testo: "Nell'ambito del progetto MicroLabX di KPS Financial Lab, mi occupo di sviluppare agenti AI autonomi per aziende."}
+    - {ruolo: Formatore AI, ente: Autonomo, date: Nov 2024 – oggi, inizio: "2024-11", breve: Aziende e scuole, testo: "Tengo lezioni e corsi per aziende e scuole superiori sull'AI generativa, la sua storia, gli strumenti e le applicazioni in ambito educativo e professionale."}
+    - {ruolo: Co-fondatore, ente: StudyBuddy, date: Gen 2023 – oggi, inizio: "2023-01", breve: StudyBuddy, testo: "L'app all-in-one per studenti universitari. Gestisco amministrazione, business, marketing e design."}
+    - {ruolo: Tirocinante progettista meccanico, ruolo_breve: Tirocinio, ente: ARM SpA, date: Giu 2024 – Set 2024, inizio: "2024-06", breve: ARM SpA · CFD, testo: "Tirocinio extracurriculare presso una fonderia di alluminio come progettista meccanico, con focus sulla fluidodinamica computazionale (CFD)."}
+  istruzione:
+    - {titolo: Ingegneria Meccanica, dove: "Laurea triennale, Università degli Studi di Brescia", date: 2018 – 2024}
+    - {titolo: Diploma di maturità, dove: "Liceo Copernico, Brescia", date: 2013 – 2018}
+  progetti:
+    - {titolo: Analisi dell'attività di movimento, testo: "Per il mio progetto di tesi, ho condotto un'analisi approfondita dei dati raccolti da app di monitoraggio dell'attività fisica utilizzate da più individui, allo scopo di ottimizzare il design del pacco batterie di una carrozzina autobilanciante per persone con disabilità."}
+  riconoscimenti:
+    - {titolo: "Vincitore NOI Hackathon 2023: CabChat", link: "https://www.hackathon.bz.it/project/studybuddy", etichetta: Presentazione, testo: "In sole 24 ore, io e il mio team abbiamo sviluppato un'interfaccia vocale per tassisti in grado di comprendere testo non strutturato da un messaggio vocale, utilizzando un bot Telegram come interfaccia."}
+  certificazioni: [Formatore AI certificato · AIFIA 2025, Inglese C1 Advanced · IELTS 2018]
+  competenze:
+    - {nome: Competenze tecniche, voci: [SolidWorks, C, Matlab, Python, OpenFOAM, OpenClaw, Linux]}
+    - {nome: Competenze trasversali, voci: [Comunicare concetti complessi, Problem solving, Pensiero critico, Pensiero creativo, Public speaking, Lavoro di squadra, Leadership, Adattabilità, Organizzazione eventi]}
+
+en:
+  titoli: {esperienza: Work experience, istruzione: Education, progetti: Projects, riconoscimenti: Awards, certificazioni: Certifications, competenze: Skills, aggiornato: Last updated}
+  esperienze:
+    - {ruolo: AI Consultant, ente: Freelance, date: May 2025 – present, inizio: "2025-05", breve: MicroLabX, testo: "As part of KPS Financial Lab's MicroLabX project, I develop autonomous AI agents for businesses."}
+    - {ruolo: AI Trainer, ente: Freelance, date: Nov 2024 – present, inizio: "2024-11", breve: Companies and schools, testo: "I teach lessons and courses for companies and high schools on generative AI: its history, its tools and its applications in education and in the workplace."}
+    - {ruolo: Co-founder, ente: StudyBuddy, date: Jan 2023 – present, inizio: "2023-01", breve: StudyBuddy, testo: "The all-in-one app for university students. I am responsible for administration, business development, marketing and design."}
+    - {ruolo: Mechanical Design Intern, ruolo_breve: Internship, ente: ARM SpA, date: Jun 2024 – Sep 2024, inizio: "2024-06", breve: ARM SpA · CFD, testo: "Internship as a mechanical designer at an aluminium foundry, focused on computational fluid dynamics (CFD)."}
+  istruzione:
+    - {titolo: Mechanical Engineering, dove: "Bachelor's Degree, University of Brescia", date: 2018 – 2024}
+    - {titolo: High School Diploma, dove: "Liceo Copernico, Brescia", date: 2013 – 2018}
+  progetti:
+    - {titolo: Physical activity data analysis, testo: "For my bachelor's thesis, I carried out an in-depth analysis of data collected by fitness-tracking apps used by several people, with the aim of optimising the battery pack design of a self-balancing wheelchair for people with disabilities."}
+  riconoscimenti:
+    - {titolo: "Winner, NOI Hackathon 2023: CabChat", link: "https://www.hackathon.bz.it/project/studybuddy", etichetta: Project page, testo: "In just 24 hours, my team and I built a voice interface for taxi drivers that understands unstructured text from voice messages, using a Telegram bot as the front end."}
+  certificazioni: [Certified AI Trainer · AIFIA 2025, "English, C1 level · IELTS 2018"]
+  competenze:
+    - {nome: Technical skills, voci: [SolidWorks, C, MATLAB, Python, OpenFOAM, OpenClaw, Linux]}
+    - {nome: Soft skills, voci: [Explaining complex concepts clearly, Problem solving, Critical thinking, Creative thinking, Public speaking, Teamwork, Leadership, Adaptability, Event organisation]}
