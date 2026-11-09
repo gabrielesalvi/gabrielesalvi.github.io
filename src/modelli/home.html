@@ -64,11 +64,13 @@
       <p class="fondo soft">{{ t.competenze_fondo }}</p>
     </div>
 
-    <div class="t num" style="--i:7">
-      <div class="etich mono"><span>NOI Hackathon 2023</span></div>
-      <div class="v">1<sup>{{ '°' if lang == 'it' else 'st' }}</sup></div>
-      <p class="mono soft">{{ t.hackathon_sotto }}</p>
-    </div>
+    <a class="t num apri" href="{{ t.progetti_url }}" style="--i:7">
+      <div class="etich mono"><span>{{ p.eti }}</span><span class="freccia" aria-hidden="true">→</span></div>
+      <ul class="elenco-prog">
+        {% for x in p.progetti if x.in_home is defined and x.in_home %}<li><b>{{ x.nome }}</b><span class="mono soft">{{ x.breve }}</span></li>
+        {% endfor %}
+      </ul>
+    </a>
 
     <div class="t mail apri" data-apri="contatti" style="--i:8">
       <div class="etich mono"><span>{{ t.contatti }}</span><span class="freccia" aria-hidden="true">→</span></div>

@@ -92,6 +92,8 @@ def main():
     # file statici
     shutil.copytree(SRC / 'assets', out / 'assets')
     shutil.copy(SRC / 'favicon.svg', out / 'favicon.svg')
+    if (SRC / 'cubo-corse').is_dir():  # il gioco, copiato da strumenti/importa-cubo-corse.py
+        shutil.copytree(SRC / 'cubo-corse', out / 'cubo-corse')
     if (SRC / 'blog' / 'img').is_dir():
         shutil.copytree(SRC / 'blog' / 'img', out / 'blog' / 'img')
     (out / 'CNAME').write_text('gabrielesalvi.com\n')
@@ -115,6 +117,7 @@ def main():
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(SRC / 'modelli'), autoescape=True,
                              undefined=jinja2.StrictUndefined, trim_blocks=True, lstrip_blocks=True)
     testi = yaml.safe_load((SRC / 'testi.yaml').read_text(encoding='utf-8'))
+    progetti = yaml.safe_load((SRC / 'progetti.yaml').read_text(encoding='utf-8'))
     comuni = {'sito': SITO, 'anno': oggi.year, 'versione': versione, 'cv': cv, 'icone': ICONE, 'sezione': '', 'foto': foto,
               'lang': 'it', 't': testi['it'], 'c': cv['it'], 'alterna': False}
 
@@ -126,7 +129,11 @@ def main():
     for lang in ('it', 'en'):
         t = testi[lang]
         scrivi(t['radice'].lstrip('/') + 'index.html', 'home.html', titolo=t['titolo_home'], descrizione=t['descrizione'],
-               percorso=t['radice'], articoli=articoli, lang=lang, t=t, c=cv[lang], alterna=True)
+               percorso=t['radice'], articoli=articoli, lang=lang, t=t, c=cv[lang], p=progetti[lang],
+               alterna={'it': '/', 'en': '/en/'})
+        scrivi(t['progetti_url'].lstrip('/') + 'index.html', 'progetti.html', titolo=progetti[lang]['titolo'],
+               descrizione=progetti[lang]['descrizione'], percorso=t['progetti_url'], lang=lang, t=t, p=progetti[lang],
+               sezione='progetti', alterna={k: testi[k]['progetti_url'] for k in ('it', 'en')})
     scrivi('blog/index.html', 'blog.html', titolo='Blog · Gabriele Salvi', sezione='blog',
            descrizione='Articoli di Gabriele Salvi su intelligenza artificiale, agenti AI, formazione e ingegneria.',
            percorso='/blog/', articoli=articoli)
@@ -146,7 +153,7 @@ def main():
         f'<title>Gabriele Salvi · Blog</title><link>{SITO}/blog/</link><description>{escape(DESCRIZIONE)}</description>'
         f'<language>it</language><atom:link href="{SITO}/blog/feed.xml" rel="self" type="application/rss+xml"/>'
         f'{voci}</channel></rss>\n', encoding='utf-8')
-    urls = ['/', '/en/', '/blog/'] + [x['url'] for x in pubblici]
+    urls = ['/', '/en/', '/progetti/', '/en/projects/', '/cubo-corse/', '/blog/'] + [x['url'] for x in pubblici]
     (out / 'sitemap.xml').write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
         + ''.join(f'<url><loc>{SITO}{u}</loc></url>' for u in urls) + '</urlset>\n', encoding='utf-8')

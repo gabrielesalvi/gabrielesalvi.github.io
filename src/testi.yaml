@@ -7,7 +7,8 @@ it:
   descrizione: "Gabriele Salvi, ingegnere meccanico prestato all'intelligenza artificiale: agenti AI per le aziende, formazione sull'AI generativa, blog."
   salta: Vai al contenuto
   tema: Cambia tema chiaro/scuro
-  nav: {bio: Bio, cv: CV, blog: Blog, contatti: Contatti}
+  nav: {bio: Bio, cv: CV, progetti: Progetti, blog: Blog, contatti: Contatti}
+  progetti_url: /progetti/
   piede: Fatto a Brescia
   ciao: Ciao, sono
   ruolo: "Ingegnere meccanico prestato all'<em>intelligenza artificiale</em>."
@@ -64,7 +65,8 @@ en:
   descrizione: "Gabriele Salvi, a mechanical engineer on loan to artificial intelligence: AI agents for businesses, generative AI training, blog."
   salta: Skip to content
   tema: Toggle light/dark theme
-  nav: {bio: About, cv: CV, blog: Blog, contatti: Contact}
+  nav: {bio: About, cv: CV, progetti: Projects, blog: Blog, contatti: Contact}
+  progetti_url: /en/projects/
   piede: Made in Brescia
   ciao: Hi, I'm
   ruolo: "Mechanical engineer on loan to <em>artificial intelligence</em>."

@@ -24,7 +24,7 @@
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="alternate" type="application/rss+xml" title="Gabriele Salvi · Blog" href="/blog/feed.xml">
 <link rel="preload" href="/assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/sito.css?v=4ec9f395">
+<link rel="stylesheet" href="/assets/sito.css?v=195541be">
 <script>document.documentElement.classList.add('js');try{const t=localStorage.getItem('gs-tema');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
@@ -33,7 +33,7 @@
   <header class="top">
     <a class="marchio" href="/"><span class="q">GS</span>Gabriele Salvi</a>
     <nav class="mono" aria-label="Sezioni">
-      <a href="/#bio">Bio</a><a href="/#cv">CV</a><a href="/blog/">Blog</a><a href="/#contatti">Contatti</a>
+      <a href="/#bio">Bio</a><a href="/#cv">CV</a><a href="/progetti/">Progetti</a><a href="/blog/">Blog</a><a href="/#contatti">Contatti</a>
     </nav>
     <a class="lingua mono" href="/en/" hreflang="en" lang="en" title="English">EN</a>
     <button class="tema" id="tema" type="button" aria-label="Cambia tema chiaro/scuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></button>
@@ -92,11 +92,13 @@
       <p class="fondo soft">Dalla meccanica al codice, e ritorno.</p>
     </div>
 
-    <div class="t num" style="--i:7">
-      <div class="etich mono"><span>NOI Hackathon 2023</span></div>
-      <div class="v">1<sup>°</sup></div>
-      <p class="mono soft">CabChat, costruito in 24 ore</p>
-    </div>
+    <a class="t num apri" href="/progetti/" style="--i:7">
+      <div class="etich mono"><span>Progetti</span><span class="freccia" aria-hidden="true">→</span></div>
+      <ul class="elenco-prog">
+<li><b>Cubo Corse</b><span class="mono soft">Gioco GT nel browser</span></li>
+<li><b>CabChat</b><span class="mono soft">1° NOI Hackathon 2023</span></li>
+      </ul>
+    </a>
 
     <div class="t mail apri" data-apri="contatti" style="--i:8">
       <div class="etich mono"><span>Contatti</span><span class="freccia" aria-hidden="true">→</span></div>
@@ -169,6 +171,6 @@
     <a class="b" href="https://github.com/gabrielesalvi" rel="noopener" target="_blank">GitHub ↗</a>
   </div>
 </section>
-<script src="/assets/sito.js?v=4ec9f395" defer></script>
+<script src="/assets/sito.js?v=195541be" defer></script>
 </body>
 </html>

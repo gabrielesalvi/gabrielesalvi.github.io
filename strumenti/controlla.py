@@ -8,7 +8,7 @@ args = [a for a in sys.argv[1:] if not a.startswith('--')]
 BASE = (args[0] if args else 'http://100.64.65.118:8119').rstrip('/')
 FOTO = '--foto' in sys.argv
 DIR = Path(__file__).resolve().parents[2] / 'screenshot-sito'
-PAGINE = ['/', '/#bio', '/#cv', '/#contatti', '/en/', '/en/#bio', '/en/#cv', '/en/#contatti', '/blog/', '/404.html']
+PAGINE = ['/', '/#bio', '/#cv', '/#contatti', '/progetti/', '/en/', '/en/#bio', '/en/#cv', '/en/#contatti', '/en/projects/', '/blog/', '/404.html']
 ko = 0
 with sync_playwright() as p:
     b = p.chromium.launch(args=['--no-sandbox'])
@@ -37,7 +37,7 @@ with sync_playwright() as p:
         for tema in ('dark', 'light'):
             for nome, vp, mob in (('desk', {'width': 1440, 'height': 900}, False), ('mob', {'width': 390, 'height': 844}, True)):
                 c = b.new_context(viewport=vp, is_mobile=mob, has_touch=mob, color_scheme=tema, device_scale_factor=1)
-                for pg, n in (('/', 'home'), ('/#cv', 'cv'), ('/en/', 'home-en'), ('/en/#bio', 'bio-en'), ('/blog/', 'blog')):
+                for pg, n in (('/', 'home'), ('/#cv', 'cv'), ('/en/', 'home-en'), ('/en/#bio', 'bio-en'), ('/progetti/', 'progetti'), ('/en/projects/', 'projects-en'), ('/blog/', 'blog')):
                     t = c.new_page(); t.goto(BASE + pg, wait_until='networkidle'); t.wait_for_timeout(1500)
                     t.screenshot(path=str(DIR / f'{n}-{nome}-{tema}.png'), full_page=(n == 'home' and mob))
                     t.close()

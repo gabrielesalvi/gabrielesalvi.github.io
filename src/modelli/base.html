@@ -8,9 +8,9 @@
 <meta name="author" content="Gabriele Salvi">
 <link rel="canonical" href="{{ sito }}{{ percorso }}">
 {% if alterna %}
-<link rel="alternate" hreflang="it" href="{{ sito }}/">
-<link rel="alternate" hreflang="en" href="{{ sito }}/en/">
-<link rel="alternate" hreflang="x-default" href="{{ sito }}/">
+<link rel="alternate" hreflang="it" href="{{ sito }}{{ alterna.it }}">
+<link rel="alternate" hreflang="en" href="{{ sito }}{{ alterna.en }}">
+<link rel="alternate" hreflang="x-default" href="{{ sito }}{{ alterna.it }}">
 {% endif %}
 <meta property="og:type" content="{{ og_tipo|default('website') }}">
 <meta property="og:site_name" content="Gabriele Salvi">
@@ -36,9 +36,9 @@
   <header class="top">
     <a class="marchio" href="{{ t.radice }}"><span class="q">GS</span>Gabriele Salvi</a>
     <nav class="mono" aria-label="{{ 'Sezioni' if lang == 'it' else 'Sections' }}">
-      <a href="{{ t.radice }}#bio">{{ t.nav.bio }}</a><a href="{{ t.radice }}#cv">{{ t.nav.cv }}</a><a href="/blog/"{% if sezione == 'blog' %} aria-current="page"{% endif %}>{{ t.nav.blog }}</a><a href="{{ t.radice }}#contatti">{{ t.nav.contatti }}</a>
+      <a href="{{ t.radice }}#bio">{{ t.nav.bio }}</a><a href="{{ t.radice }}#cv">{{ t.nav.cv }}</a><a href="{{ t.progetti_url }}"{% if sezione == 'progetti' %} aria-current="page"{% endif %}>{{ t.nav.progetti }}</a><a href="/blog/"{% if sezione == 'blog' %} aria-current="page"{% endif %}>{{ t.nav.blog }}</a><a href="{{ t.radice }}#contatti">{{ t.nav.contatti }}</a>
     </nav>
-    <a class="lingua mono" href="{{ t.altra.url }}" hreflang="{{ t.altra.lingua }}" lang="{{ t.altra.lingua }}" title="{{ t.altra.nome }}">{{ t.altra.sigla }}</a>
+    <a class="lingua mono" href="{{ alterna[t.altra.lingua] if alterna else t.altra.url }}" hreflang="{{ t.altra.lingua }}" lang="{{ t.altra.lingua }}" title="{{ t.altra.nome }}">{{ t.altra.sigla }}</a>
     <button class="tema" id="tema" type="button" aria-label="{{ t.tema }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></button>
   </header>
 {% block corpo %}{% endblock %}

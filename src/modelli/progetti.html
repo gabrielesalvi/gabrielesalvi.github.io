@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block corpo %}
+  <main class="foglio" id="contenuto">
+    <span class="mono soft">{{ p.eti }}</span>
+    <h1 class="titolo">{{ p.h1|safe }}</h1>
+    <p class="lead-pag">{{ p.lead }}</p>
+    {% for x in p.progetti %}
+    <article class="prog{% if x.immagine is defined %} con-img{% endif %}" id="{{ x.id }}">
+      {% if x.immagine is defined %}
+      <a class="prog-img" href="{{ x.link[0].url }}"{% if not x.link[0].get('interno') %} rel="noopener" target="_blank"{% endif %} tabindex="-1" aria-hidden="true"><img src="/assets/progetti/{{ x.immagine }}" alt="" width="960" height="540" loading="lazy"></a>
+      {% endif %}
+      <div class="prog-testo">
+        <span class="mono soft">{{ x.anno }} · {{ x.breve }}</span>
+        <h2>{{ x.nome }}</h2>
+        <p>{{ x.testo }}</p>
+        {% if x.nota is defined %}<p class="nota mono soft">{{ x.nota }}</p>{% endif %}
+        <div class="chips mono">{% for g in x.tag %}<span class="chip">{{ g }}</span>{% endfor %}</div>
+        {% if x.link is defined %}
+        <div class="azioni">{% for l in x.link %}<a class="b{% if loop.first %} pieno{% endif %}" href="{{ l.url }}"{% if not l.get('interno') %} rel="noopener" target="_blank"{% endif %}>{{ l.testo }}{% if l.get('interno') %} →{% else %} ↗{% endif %}</a>{% endfor %}</div>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </main>
+{% endblock %}

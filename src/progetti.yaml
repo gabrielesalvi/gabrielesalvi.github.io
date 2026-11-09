@@ -1,0 +1,83 @@
+# Pagina Progetti (/progetti/ e /en/projects/) e tessera "Progetti" della home.
+# "in_home: true" mette il progetto nella tessera della home (massimo 2). "immagine" è in src/assets/progetti/.
+# "link": pulsanti; "interno: true" = pagina di questo sito (si apre nella stessa scheda).
+
+it:
+  titolo: Progetti · Gabriele Salvi
+  descrizione: "Progetti di Gabriele Salvi: Cubo Corse, gioco di corse GT nel browser, CabChat, vincitore del NOI Hackathon 2023, e altro."
+  eti: Progetti
+  h1: "Pro<em>getti</em>"
+  lead: Cose costruite, a volte da solo, a volte in squadra, sempre più spesso insieme all'AI.
+  progetti:
+    - id: cubo-corse
+      nome: Cubo Corse
+      anno: "2026"
+      breve: Gioco GT nel browser
+      in_home: true
+      immagine: cubo-corse.webp
+      testo: "Un gioco di corse GT in voxel che gira nel browser, costruito con agenti AI. Tre piste, tra cui Monza in scala 1:1 ricostruita dai dati di OpenStreetMap e dalle quote del terreno, avversari guidati dall'IA, ora del giorno e meteo, prova a tempo con il fantasma del giro migliore e una modalità foto."
+      nota: Da PC, con tastiera e mouse. Meglio con una scheda video dedicata.
+      tag: [three.js, WebGL, Simulazione, Agenti AI]
+      link:
+        - {testo: Gioca ora, url: /cubo-corse/, interno: true}
+    - id: cabchat
+      nome: CabChat
+      anno: "2023"
+      breve: 1° NOI Hackathon 2023
+      in_home: true
+      testo: "In sole 24 ore, io e il mio team abbiamo sviluppato un'interfaccia vocale per tassisti in grado di comprendere testo non strutturato da un messaggio vocale, utilizzando un bot Telegram come interfaccia. Il progetto ha vinto il NOI Hackathon 2023."
+      tag: [Riconoscimento vocale, Telegram, Hackathon]
+      link:
+        - {testo: Presentazione, url: "https://www.hackathon.bz.it/project/studybuddy"}
+    - id: studybuddy
+      nome: StudyBuddy
+      anno: 2023 – oggi
+      breve: App per universitari
+      testo: "L'app all-in-one per studenti universitari, che ho co-fondato. Mi occupo di amministrazione, business, marketing e design."
+      tag: [Startup, Prodotto, Design]
+    - id: tesi
+      nome: Analisi dell'attività di movimento
+      anno: "2024"
+      breve: Tesi di laurea
+      testo: "Per la tesi ho analizzato i dati raccolti da app di monitoraggio dell'attività fisica usate da più persone, per ottimizzare il pacco batterie di una carrozzina autobilanciante per persone con disabilità."
+      tag: [Analisi dati, Ingegneria meccanica]
+
+en:
+  titolo: Projects · Gabriele Salvi
+  descrizione: "Projects by Gabriele Salvi: Cubo Corse, a GT racing game in the browser, CabChat, winner of the NOI Hackathon 2023, and more."
+  eti: Projects
+  h1: "Pro<em>jects</em>"
+  lead: Things I have built, sometimes alone, sometimes with a team, more and more often together with AI.
+  progetti:
+    - id: cubo-corse
+      nome: Cubo Corse
+      anno: "2026"
+      breve: GT racing in the browser
+      in_home: true
+      immagine: cubo-corse.webp
+      testo: "A voxel GT racing game that runs in the browser, built with AI agents. Three tracks, including a 1:1 Monza rebuilt from OpenStreetMap data and terrain elevation, AI opponents, time of day and weather, time trial with a ghost of your best lap, and a photo mode."
+      nota: On a computer, with keyboard and mouse. A dedicated graphics card helps. The game's menus are in Italian.
+      tag: [three.js, WebGL, Simulation, AI agents]
+      link:
+        - {testo: Play now, url: /cubo-corse/, interno: true}
+    - id: cabchat
+      nome: CabChat
+      anno: "2023"
+      breve: 1st place, NOI Hackathon 2023
+      in_home: true
+      testo: "In just 24 hours, my team and I built a voice interface for taxi drivers that understands unstructured text from voice messages, using a Telegram bot as the front end. The project won the NOI Hackathon 2023."
+      tag: [Speech recognition, Telegram, Hackathon]
+      link:
+        - {testo: Project page, url: "https://www.hackathon.bz.it/project/studybuddy"}
+    - id: studybuddy
+      nome: StudyBuddy
+      anno: 2023 – present
+      breve: App for university students
+      testo: "The all-in-one app for university students, which I co-founded. I look after administration, business development, marketing and design."
+      tag: [Startup, Product, Design]
+    - id: tesi
+      nome: Physical activity data analysis
+      anno: "2024"
+      breve: Bachelor's thesis
+      testo: "For my thesis I analysed data collected by fitness-tracking apps used by several people, to optimise the battery pack of a self-balancing wheelchair for people with disabilities."
+      tag: [Data analysis, Mechanical engineering]
