@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MEMORIA – un film di ricordi</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#120d0a;--ink:#F3E6D2;--mut:#A89480;--amb:#F2A03D;--teal:#5CC3B8;--rose:#E96A7E;--ice:#8FB8FF;--pu:#B79CF0;--lb:clamp(46px,8vh,70px);color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:#000}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:#000;color:var(--ink);font:400 clamp(14px,1.4vw,18px)/1.5 "IBM Plex Sans",system-ui,sans-serif}
+#frame{position:relative;height:100%;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#35241a 0%,var(--bg) 75%);cursor:pointer}
+#frame::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;opacity:.1;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.lb{position:absolute;left:0;right:0;height:var(--lb);background:#000;z-index:7;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 clamp(14px,3vw,40px);color:var(--mut);font-size:12px;letter-spacing:.16em;text-transform:uppercase;cursor:default}
+.lb>*{animation:fi .6s 1.5s both}
+#top{top:0;animation:op 1.7s cubic-bezier(.7,0,.2,1) both}#bot{bottom:0;animation:op 1.7s cubic-bezier(.7,0,.2,1) both}
+@keyframes op{from{height:50%}to{height:var(--lb)}}@keyframes fi{from{opacity:0}to{opacity:1}}
+.scene{position:absolute;inset:0;padding:calc(var(--lb) + 14px) clamp(14px,4vw,56px) calc(var(--lb) + 74px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .8s,visibility .8s;text-align:center}
+.scene.on{opacity:1;visibility:visible}
+.kb{display:flex;flex-direction:column;align-items:center;transition:transform .2s linear}
+h1{font:400 clamp(72px,17vw,210px)/.9 "Bebas Neue",Impact,"Arial Narrow",sans-serif;letter-spacing:.09em;margin:0 0 0 .09em;text-shadow:0 0 40px rgba(242,160,61,.35)}
+.flare{width:min(520px,70%);height:2px;background:linear-gradient(90deg,transparent,var(--amb),transparent);margin:16px 0 24px}
+.btn{font:inherit;color:var(--ink);background:rgba(255,255,255,.05);border:1px solid #8a7660;border-radius:999px;padding:8px 22px;cursor:pointer;transition:.2s}
+.btn:hover{background:var(--ink);color:#000}.btn:focus-visible{outline:2px solid var(--amb);outline-offset:3px}
+.btn.big{font-size:1.15em;padding:12px 34px;letter-spacing:.15em}
+.ph{position:relative;overflow:hidden;filter:saturate(1.1) contrast(1.05)}
+.ph::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 28% 18%,rgba(255,236,200,.3),transparent 55%),radial-gradient(circle,transparent 52%,rgba(0,0,0,.4))}
+.ph svg,.film svg{display:block;width:100%;height:auto}
+.pol{margin:0;background:#f3e8d4;padding:10px 10px 4px;width:clamp(150px,21vw,250px);box-shadow:0 14px 34px rgba(0,0,0,.65);transform:rotate(var(--r,0deg));transition:opacity .9s,transform .9s,filter .3s,box-shadow .3s}
+.pol.big{width:clamp(210px,34vw,400px)}
+.pol figcaption{font:600 clamp(18px,2.2vw,28px)/1.2 Caveat,cursive;color:#3b2a1d;padding:2px 0 4px}
+.pol.h{opacity:0;transform:translateY(24px) rotate(var(--r,0deg)) scale(.85)}
+.pol.hl{transform:rotate(0deg) scale(1.12);box-shadow:0 0 50px rgba(143,184,255,.7),0 14px 34px rgba(0,0,0,.65);z-index:2}
+.film{width:min(560px,82vw);border:10px solid #1a120d;box-shadow:0 0 0 2px #3b2a1d,0 20px 50px #000}
+.film.fl{animation:fk .25s}@keyframes fk{from{filter:brightness(2) blur(2px)}}
+.timer{width:min(300px,60vw);height:5px;background:#3b2a1d;border-radius:3px;margin-top:18px}.timer i{display:block;height:100%;width:100%;background:var(--teal);border-radius:3px}
+.reps{display:flex;gap:10px;margin-top:18px}.reps b{width:12px;height:12px;border-radius:50%;border:1px solid var(--mut);display:block;transition:.4s}.reps b.on{background:var(--amb);border-color:var(--amb);box-shadow:0 0 12px var(--amb)}
+.wall{display:flex;flex-wrap:wrap;gap:clamp(14px,3vw,36px);justify-content:center;align-items:center}
+#mb{position:absolute;top:calc(var(--lb) + 10px);right:clamp(10px,3vw,40px);z-index:6;width:clamp(90px,12vw,140px);text-align:center;opacity:0;transition:opacity .6s;font-size:12px;color:var(--mut)}
+#mb.show{opacity:1}#mb svg{width:100%;display:block}
+#mb [id^=r-]{opacity:.15;transition:opacity .6s}#mb [id^=r-].on{opacity:1}
+#cap{position:absolute;left:50%;bottom:calc(var(--lb) + 14px);transform:translateX(-50%);z-index:6;max-width:min(780px,92%);text-align:center;font-size:clamp(16px,1.9vw,24px);text-shadow:0 2px 6px #000;background:rgba(0,0,0,.55);padding:6px 18px;border-radius:4px;transition:opacity .4s}
+#cap:empty{opacity:0}
+nav{display:flex;gap:10px;align-items:center}nav .btn{padding:2px 14px}
+.prog{flex:1;height:3px;background:#2e2118;border-radius:2px;min-width:60px}.prog i{display:block;height:100%;width:0;background:var(--amb);border-radius:2px;transition:width .2s linear}
+#hint{opacity:0;color:var(--amb);transition:opacity .5s;white-space:nowrap}#hint.show{opacity:1;animation:pu 1.4s infinite}@keyframes pu{50%{opacity:.35}}
+.cred{color:var(--mut);margin:0 0 22px;line-height:1.9}
+@media (max-width:640px){.lb .hide{display:none}}
+@media (prefers-reduced-motion:reduce){#top,#bot,.lb>*,#hint.show{animation:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <linearGradient id="gA" x2="0" y2="1"><stop offset="0" stop-color="#f6a85f"/><stop offset=".6" stop-color="#fbd9a3"/><stop offset="1" stop-color="#f6e7c8"/></linearGradient>
+  <radialGradient id="gS"><stop offset="0" stop-color="#fff6d6"/><stop offset=".35" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gR" x2="0" y2="1"><stop offset="0" stop-color="#7a5f4a"/><stop offset="1" stop-color="#43332a"/></linearGradient>
+  <linearGradient id="gSea" x2="0" y2="1"><stop offset="0" stop-color="#5fc0cf"/><stop offset="1" stop-color="#1f6f8f"/></linearGradient>
+  <linearGradient id="gSky2" x2="0" y2="1"><stop offset="0" stop-color="#6fb4e6"/><stop offset="1" stop-color="#d9f0f7"/></linearGradient>
+  <linearGradient id="gSand" x2="0" y2="1"><stop offset="0" stop-color="#f2dcae"/><stop offset="1" stop-color="#d6b982"/></linearGradient>
+  <linearGradient id="gRoom" x2="0" y2="1"><stop offset="0" stop-color="#2a170f"/><stop offset="1" stop-color="#6a3d25"/></linearGradient>
+  <linearGradient id="gWood" x2="0" y2="1"><stop offset="0" stop-color="#b07a4c"/><stop offset="1" stop-color="#7a4b2a"/></linearGradient>
+  <linearGradient id="gSt" x2="0" y2="1"><stop offset="0" stop-color="#aab6bd"/><stop offset="1" stop-color="#dfe5e7"/></linearGradient>
+  <filter id="b1"><feGaussianBlur stdDeviation="1.2"/></filter><filter id="b3"><feGaussianBlur stdDeviation="3.5"/></filter>
+ </defs>
+ <symbol id="m-bici" viewBox="0 0 200 150"><rect width="200" height="150" fill="url(#gA)"/><circle cx="145" cy="68" r="62" fill="url(#gS)"/><path d="M0 100Q40 78 80 94T160 88T200 96V120H0z" fill="#7b6a58" opacity=".55" filter="url(#b3)"/><g filter="url(#b1)" fill="#4d5a3a" opacity=".6"><circle cx="20" cy="92" r="14"/><circle cx="40" cy="96" r="10"/><circle cx="175" cy="90" r="13"/></g><rect y="106" width="200" height="44" fill="url(#gR)"/><ellipse cx="102" cy="130" rx="58" ry="6" fill="#000" opacity=".4" filter="url(#b1)"/><g fill="none" stroke="#2b1e18" stroke-width="3.5" stroke-linecap="round"><circle cx="62" cy="108" r="22"/><circle cx="142" cy="108" r="22"/><path d="M62 108L88 76H122L142 108M88 76L102 108H62M122 76L116 66H128"/></g><g stroke="#2b1e18" stroke-width="1" opacity=".6"><path d="M62 86V130M40 108H84M47 93L77 123M77 93L47 123M142 86V130M120 108H164M127 93L157 123M157 93L127 123"/></g></symbol>
+ <symbol id="m-torta" viewBox="0 0 200 150"><rect width="200" height="150" fill="url(#gRoom)"/><g filter="url(#b3)"><circle cx="30" cy="30" r="14" fill="#ffc861" opacity=".8"/><circle cx="62" cy="18" r="9" fill="#ff8f6b" opacity=".7"/><circle cx="160" cy="26" r="16" fill="#ffd98a" opacity=".8"/><circle cx="185" cy="58" r="10" fill="#ff9ec0" opacity=".6"/><circle cx="14" cy="70" r="9" fill="#ffe29a" opacity=".6"/></g><rect y="112" width="200" height="38" fill="url(#gWood)"/><ellipse cx="100" cy="124" rx="62" ry="9" fill="#f1e6d6"/><rect x="62" y="86" width="76" height="38" rx="4" fill="#e58a9a"/><path d="M62 92q9 13 19 0t19 0t19 0t19 0V86H62z" fill="#fff3e4"/><g fill="#79b6dc"><rect x="78" y="62" width="5" height="24"/><rect x="98" y="58" width="5" height="28"/><rect x="118" y="62" width="5" height="24"/></g><g filter="url(#b1)" fill="#ffd36b" opacity=".55"><circle cx="80" cy="54" r="12"/><circle cx="100" cy="50" r="13"/><circle cx="120" cy="54" r="12"/></g><g fill="#fff3a8"><ellipse cx="80" cy="56" rx="3.5" ry="6"/><ellipse cx="100" cy="52" rx="3.5" ry="6"/><ellipse cx="120" cy="56" rx="3.5" ry="6"/></g></symbol>
+ <symbol id="m-mare" viewBox="0 0 200 150"><rect width="200" height="150" fill="url(#gSky2)"/><circle cx="48" cy="34" r="40" fill="url(#gS)"/><rect y="66" width="200" height="54" fill="url(#gSea)"/><path d="M10 80q10-4 20 0M70 90q12-5 24 0M130 78q10-4 22 0M40 102q14-5 28 0M120 108q12-5 26 0" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.5"/><path d="M0 116q25-8 50 0t50 0t50 0t50 0V124H0z" fill="#e8f7f8" opacity=".85"/><rect y="118" width="200" height="32" fill="url(#gSand)"/><path d="M110 108a34 30 0 0 1 68 0z" fill="#e5533d"/><path d="M127 108a17 30 0 0 1 34 0z" fill="#fff" opacity=".85"/><path d="M144 108V142" stroke="#5b4030" stroke-width="3"/><ellipse cx="146" cy="142" rx="40" ry="4" fill="#000" opacity=".2" filter="url(#b1)"/></symbol>
+ <symbol id="m-casa" viewBox="0 0 200 150"><rect width="200" height="150" fill="#d8b283"/><rect x="112" y="18" width="70" height="62" fill="#fdf0c8" stroke="#7a4b2a" stroke-width="5"/><path d="M147 18V80M112 49H182" stroke="#7a4b2a" stroke-width="3"/><path d="M112 80H182L150 150H60z" fill="url(#gS)" opacity=".5"/><g filter="url(#b3)" opacity=".7"><circle cx="30" cy="30" r="12" fill="#fff1b8"/><circle cx="56" cy="50" r="8" fill="#e9a25f"/></g><rect y="112" width="200" height="38" fill="url(#gWood)"/><rect x="32" y="78" width="66" height="10" rx="3" fill="#aab4ba"/><rect x="36" y="86" width="58" height="26" rx="4" fill="#7d8a93"/><g fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="5" stroke-linecap="round" filter="url(#b1)"><path d="M52 70q-9-10 0-20t0-20"/><path d="M68 70q-9-10 0-20t0-20"/><path d="M84 70q-9-10 0-20t0-20"/></g></symbol>
+ <symbol id="m-pass" viewBox="0 0 200 150"><rect width="200" height="150" fill="url(#gSt)"/><g filter="url(#b3)"><rect x="4" y="22" width="52" height="100" fill="#7f8c96"/><rect x="150" y="8" width="46" height="114" fill="#6d7b86"/><rect x="70" y="40" width="40" height="80" fill="#97a4ad"/><circle cx="30" cy="56" r="7" fill="#ffd98a"/><circle cx="172" cy="40" r="6" fill="#ffd98a"/></g><rect y="118" width="200" height="32" fill="#6f7983"/><ellipse cx="100" cy="146" rx="30" ry="5" fill="#000" opacity=".3" filter="url(#b1)"/><path d="M76 148V98q0-18 24-18t24 18v50z" fill="#a8364f"/><circle cx="100" cy="62" r="17" fill="#e8b996"/><path d="M82 60q2-22 18-22t18 22q-8-12-18-12t-18 12z" fill="#2f2018"/><rect x="85" y="78" width="30" height="9" rx="4.5" fill="#f2a03d"/><circle cx="94" cy="64" r="1.6" fill="#2a1a12"/><circle cx="106" cy="64" r="1.6" fill="#2a1a12"/></symbol>
+</svg>
+<div id="frame">
+ <div class="lb" id="top"><span id="sc">Titoli di testa</span><span id="tc">00:00</span></div>
+
+ <section class="scene on">
+  <p style="letter-spacing:.3em;color:var(--mut);margin:0 0 8px">Un film fatto di ricordi</p>
+  <h1>MEMORIA</h1><div class="flare"></div>
+  <button class="btn big" id="start">▶ Inizia</button>
+ </section>
+
+ <section class="scene"><div class="kb"><div class="film" id="fr"><div class="ph"><svg viewBox="0 0 200 150"><use id="fu" href="#m-bici"/></svg></div></div></div></section>
+
+ <section class="scene"><div class="kb"><figure class="pol big" id="ps"><div class="ph"><svg viewBox="0 0 200 150"><use href="#m-pass"/></svg></div><figcaption>Una persona per strada</figcaption></figure><div class="timer"><i id="tm"></i></div></div></section>
+
+ <section class="scene"><div class="kb"><figure class="pol big" id="pc"><div class="ph"><svg viewBox="0 0 200 150"><use href="#m-torta"/></svg></div><figcaption>Il mio compleanno</figcaption></figure><div class="reps"><b></b><b></b><b></b></div></div></section>
+
+ <section class="scene"><div class="kb"><div class="wall">
+  <figure class="pol h" style="--r:-4deg"><div class="ph"><svg viewBox="0 0 200 150"><use href="#m-mare"/></svg></div><figcaption>Estate al mare</figcaption></figure>
+  <figure class="pol h" style="--r:3deg"><div class="ph"><svg viewBox="0 0 200 150"><use href="#m-casa"/></svg></div><figcaption>Cucina della nonna</figcaption></figure>
+  <figure class="pol h" style="--r:-2deg"><div class="ph"><svg viewBox="0 0 200 150"><use href="#m-torta"/></svg></div><figcaption>Il mio compleanno</figcaption></figure>
+  <figure class="pol h" style="--r:4deg"><div class="ph"><svg viewBox="0 0 200 150"><use href="#m-bici"/></svg></div><figcaption>La prima volta in bici</figcaption></figure>
+ </div></div></section>
+
+ <section class="scene">
+  <h1 style="font-size:clamp(64px,13vw,160px)">FINE</h1><div class="flare"></div>
+  <p class="cred">Breve termine: pochi secondi · Lungo termine: tutta la vita<br>Regia: la ripetizione</p>
+  <button class="btn" id="again">↺ Rivedi dall’inizio</button>
+ </section>
+
+ <div id="mb"><svg viewBox="0 0 520 400" aria-hidden="true">
+  <path id="r-ctx" d="M80 200C60 110 150 40 270 40C390 40 470 100 470 190C470 250 430 280 380 285L150 285C110 280 85 250 80 200Z" fill="rgba(183,156,240,.18)" stroke="var(--pu)" stroke-width="6"/>
+  <path id="r-pfc" d="M80 200C60 110 150 40 200 42L200 275C140 268 90 245 80 200Z" fill="var(--teal)"/>
+  <path id="r-cer" d="M345 300C360 262 455 268 462 300C468 335 400 345 365 338C345 330 342 312 345 300Z" fill="var(--ice)"/>
+  <path id="r-hip" d="M218 238C238 204 292 200 332 228C347 240 342 258 324 258" fill="none" stroke="var(--amb)" stroke-width="16" stroke-linecap="round"/>
+  <circle id="r-amy" cx="205" cy="252" r="20" fill="var(--rose)"/>
+ </svg><div id="mbl"></div></div>
+ <div id="cap" aria-live="polite"></div>
+ <div class="lb" id="bot"><nav><button class="btn" id="pv" aria-label="Slide precedente">◀</button><button class="btn" id="pp" aria-label="Pausa">❚❚</button><button class="btn" id="rp" aria-label="Rivedi questa scena">↻</button></nav><div class="prog"><i id="pg"></i></div><span id="hint">Avanti →</span></div>
+</div>
+<script>
+var $=function(i){return document.getElementById(i)},S=document.querySelectorAll(".scene"),cur=0,t=0,pause=false,ci=-1,fk=-1;
+var IM=["m-bici","m-mare","m-pass","m-torta","m-casa"],DUR=[0,9,12,15,17,0],KB=[null,0,0,0,0,null];
+var CAP=[[],[[0,"Ogni istante i nostri occhi catturano migliaia di immagini."],[4,"La memoria sensoriale le tiene meno di 1 secondo."]],
+[[0,"Un volto in mezzo alla folla…"],[3,"La memoria a breve termine tiene circa 7 cose per 15–30 secondi."],[9,"Se non la ripeti, svanisce."]],
+[[0,"Ma se un momento si ripete, o ci emoziona…"],[5,"…l’ippocampo lo rinforza, anche mentre dormiamo…"],[11,"…e lo sposta nell’archivio a lungo termine."]],
+[[0,"Nel lungo termine i ricordi durano anni, anche una vita."],[9,"Perfino le abilità, come andare in bici, restano nel cervelletto."],[15,"E ogni volta che ricordi… rivivi quel momento."]],[]];
+var BL={pfc:"corteccia prefrontale",hip:"ippocampo",amy:"amigdala",cer:"cervelletto",ctx:"neocorteccia"};
+function cl(x){return Math.max(0,Math.min(1,x))}
+function brain(a){["pfc","hip","amy","cer","ctx"].forEach(function(k){$("r-"+k).classList.toggle("on",a.indexOf(k)>-1)});$("mb").classList.toggle("show",a.length>0);$("mbl").textContent=a.map(function(k){return BL[k]}).join(" · ")}
+function go(i){cur=Math.max(0,Math.min(S.length-1,i));t=0;ci=-1;fk=-1;S.forEach(function(s,j){s.classList.toggle("on",j===cur)});
+ $("sc").textContent=cur===0?"Titoli di testa":cur===5?"Titoli di coda":"Slide "+cur+" / 4";upd()}
+function upd(){var c=cur,cp=CAP[c],k=-1,i,d=DUR[c];
+ for(i=0;i<cp.length;i++)if(t>=cp[i][0])k=i;
+ if(k!==ci){ci=k;$("cap").textContent=k>-1?cp[k][1]:""}
+ if(KB[c]!==null)S[c].querySelector(".kb").style.transform="scale("+(1+.07*cl(t/d))+")";
+ $("pg").style.width=(d?cl(t/d)*100:(c===5?100:0))+"%";$("hint").classList.toggle("show",c<5&&t>=(d||0));
+ $("tc").textContent="00:"+("0"+Math.floor(t)).slice(-2);
+ if(c===1){var n=Math.floor(t/.8)%5;if(n!==fk){fk=n;$("fu").setAttribute("href","#"+IM[n]);var f=$("fr");f.classList.remove("fl");void f.offsetWidth;f.classList.add("fl")}brain([])}
+ else if(c===2){var o=cl(1-(t-4)/8);$("ps").style.opacity=o;$("ps").style.filter="blur("+((1-o)*10)+"px) sepia("+((1-o)*.8)+")";$("tm").style.width=(100-cl(t/12)*100)+"%";brain(["pfc"])}
+ else if(c===3){var v=cl((t-1)/12),g=0,r=0;[3,7,11].forEach(function(p){var e=t-p;if(e>=0)r++;if(e>=0&&e<1.6)g=Math.max(g,1-e/1.6)});
+  $("pc").style.filter="saturate("+(.25+.95*v)+") sepia("+(.8*(1-v))+") blur("+(3*(1-v))+"px)";$("pc").style.opacity=.5+.5*v;
+  $("pc").style.boxShadow="0 0 "+(g*70)+"px rgba(242,160,61,"+g+"),0 14px 34px rgba(0,0,0,.65)";
+  [].forEach.call(document.querySelectorAll(".reps b"),function(b,j){b.classList.toggle("on",j<r)});brain(["hip","amy"])}
+ else if(c===4){var w=S[4].querySelectorAll(".pol");[].forEach.call(w,function(e,j){e.classList.toggle("h",t<1+2.5*j)});w[3].classList.toggle("hl",t>=9&&t<15);brain(t>=9&&t<15?["cer"]:["ctx"])}
+ else brain([])}
+setInterval(function(){if(!pause){t+=.1;upd()}},100);
+function toggle(){pause=!pause;$("pp").textContent=pause?"▶":"❚❚"}
+function next(){go(cur+1)}
+$("start").onclick=function(e){e.stopPropagation();next()};
+$("again").onclick=function(e){e.stopPropagation();go(1)};
+$("pp").onclick=toggle;$("pv").onclick=function(){go(cur-1)};$("rp").onclick=function(){t=0;ci=-1;upd()};
+$("frame").addEventListener("click",function(e){if(!e.target.closest(".lb")&&!e.target.closest("button"))next()});
+document.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key==="PageDown"||e.key===" "||e.key==="Enter"){if(e.target.tagName!=="BUTTON"){e.preventDefault();next()}}else if(e.key==="ArrowLeft"||e.key==="PageUp")go(cur-1)});
+go(0);
+</script>
+</body>
+</html>

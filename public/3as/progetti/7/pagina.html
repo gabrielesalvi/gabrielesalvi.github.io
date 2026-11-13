@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz Interattivo – Missione AFELIO</title>
+<style>
+:root{--blu:#5ad1ff;--oro:#ffc66b;--aran:#ff8a3d;--txt:#e8ecff;--mut:#9aa3c7;--pan:rgba(8,10,30,.90);
+--f:Bahnschrift,"DIN Alternate","Segoe UI",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden;color:var(--txt);font:16px/1.45 var(--f);
+background:radial-gradient(ellipse at 15% 85%,#26124f,transparent 55%),radial-gradient(ellipse at 90% 10%,#0b2a52,transparent 50%),#04040d}
+#cv{position:fixed;inset:0;width:100%;height:100%;z-index:1}
+#top{position:fixed;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:5}
+#top b{color:var(--blu);font-size:1.05rem;letter-spacing:.05em}
+button{font:inherit;font-size:.9rem;color:var(--txt);background:rgba(90,209,255,.1);border:1px solid rgba(90,209,255,.5);border-radius:8px;padding:.5em 1em;cursor:pointer;transition:.2s}
+button:hover,button:focus-visible{background:rgba(90,209,255,.3);box-shadow:0 0 14px rgba(90,209,255,.5);outline:0}
+button.act{background:rgba(255,198,107,.25);border-color:var(--oro)}
+button.correct{background:rgba(40,200,100,.35)!important;border-color:#28c864!important;color:#fff!important}
+button.wrong{background:rgba(230,60,60,.35)!important;border-color:#e63c3c!important;color:#fff!important}
+
+#card{position:fixed;left:50%;top:52%;transform:translate(-50%,-50%);width:min(660px,94vw);max-height:86vh;overflow-y:auto;padding:1.6rem;background:var(--pan);border:1px solid rgba(90,209,255,.4);border-radius:14px;backdrop-filter:blur(8px);z-index:4;box-shadow:0 0 40px rgba(0,0,0,.7)}
+h2{font-size:clamp(1.3rem,2.6vw,1.9rem);line-height:1.2;margin:.2em 0 .6em;color:var(--oro)}
+p{margin:.5em 0}
+.q-meta{color:var(--blu);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4em}
+.question-text{font-size:1.15rem;font-weight:600;margin-bottom:1.2em;color:#fff}
+.options{display:flex;flex-direction:column;gap:.6em;margin-bottom:1rem}
+.options button{text-align:left;padding:.75rem 1rem;background:rgba(255,255,255,.05);border-color:rgba(90,209,255,.3);border-radius:8px;font-size:.95rem;transition:all .2s}
+.options button:hover:not(:disabled){background:rgba(90,209,255,.2);border-color:var(--blu)}
+.feedback-box{margin-top:1rem;padding:.8rem 1rem;border-radius:8px;font-size:.95rem;display:none}
+.feedback-box.correct-fb{background:rgba(40,200,100,.15);border-left:4px solid #28c864;color:#d4fcd8}
+.feedback-box.wrong-fb{background:rgba(230,60,60,.15);border-left:4px solid #e63c3c;color:#fcd4d4}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:1.4em;padding-top:.8em;border-top:1px solid rgba(255,255,255,.1)}
+.score-big{font-size:3rem;font-weight:700;color:var(--oro);text-align:center;margin:.3em 0}
+#hint{position:fixed;right:14px;bottom:14px;font-size:.7rem;color:var(--mut);z-index:3;text-align:right}
+@media(max-width:600px){#card{padding:1.1rem;top:50%}#hint{display:none}}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="top">
+  <b>MISSIONE AFELIO – Quiz Spaziale</b>
+  <button id="bS" onclick="toggleSound()">Suono: OFF</button>
+</div>
+<div id="card"></div>
+<div id="hint">Trascina il corpo celeste per ruotarlo liberamente • 10 Domande</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+
+/* --- DEFINIZIONE CORPI CELESTI (Procedurali 3D ingranditi e ottimizzati) --- */
+const CR=[[0,.3,.12,.1,'#0005'],[1.2,-.3,.1,.09,'#0005'],[2.2,.5,.08,.07,'#0005'],[3.1,-.1,.14,.12,'#0005']];
+const BODIES={
+ terra:{nm:'Terra',c:['#7fd8ff','#0a3a7a'],z:.52,w:.12,atm:'#6fc3ff',sp:[[0,.4,.25,.22,'#3f9b5a'],[1,-.25,.2,.3,'#4a9e55'],[2.3,.5,.3,.16,'#6bb06a'],[3.5,-.3,.22,.2,'#3a8f55'],[.5,.1,.4,.06,'#fffa',1.5]]},
+ luna:{nm:'Luna',c:['#e4e4e4','#7d7d7d'],z:.46,w:.06,sp:[[.5,.3,.3,.22,'#0003'],[1.8,-.1,.34,.28,'#0003'],[3.4,.4,.25,.2,'#0003'],...CR]},
+ sole:{nm:'Sole',c:['#fff4b8','#ff8a1f'],fx:1,z:.58,w:.2,sp:[[0,.3,.1,.06,'#9a3d0a'],[2,-.2,.08,.05,'#9a3d0a'],[4,.1,.09,.06,'#9a3d0a']]},
+ mercurio:{nm:'Mercurio',c:['#c8bcb0','#6e655d'],z:.44,w:.15,atm:'#ffcf8a',sp:CR},
+ venere:{nm:'Venere',c:['#f7e2b4','#c48f45'],z:.48,w:.08,atm:'#ffdc90',bd:['#fff3d0','#d2a55d'],sp:[[0,.4,.5,.12,'#fff5'],[2,-.3,.6,.1,'#fff5']]},
+ marte:{nm:'Marte',c:['#e58a5c','#7a2f18'],z:.46,w:.1,atm:'#ffb48a',sp:[[.5,.2,.3,.15,'#5a2a1a99'],[2,-.3,.3,.18,'#5a2a1a99'],[3.8,.1,.25,.12,'#6a331f99'],[0,1.3,.5,.14,'#fff',0]]},
+ cerere:{nm:'Cerere (Fascia)',c:['#a39d95','#55504a'],z:.40,w:.1,sp:CR},
+ giove:{nm:'Giove',c:['#ead0a8','#8b5a36'],z:.65,w:.12,bd:['#f3e3c6','#b07a4f','#dbb98e','#8e5a3a'],sp:[[0,.35,.22,.1,'#b5452a']]},
+ saturno:{nm:'Saturno',c:['#f0dca8','#a8864a'],z:.52,w:.15,bd:['#f6e8c0','#c9a96a','#e8d4a0'],ring:[1.3,2.2,'#d8c28c',-.35]},
+ urano:{nm:'Urano',c:['#c4f0f0','#4f9fb0'],z:.50,w:.1,atm:'#aeeaff',ring:[1.55,1.95,'#cfeeff',1.35]},
+ nettuno:{nm:'Nettuno',c:['#5b8bff','#14246e'],z:.50,w:.1,atm:'#4a7bff',bd:['#6fa0ff','#2f4fcf'],wind:1,sp:[[1,.3,.28,.12,'#0b1a66cc']]}
+};
+
+/* --- DOMANDE DEL QUIZ (10 Domande basate sulla Missione Afelio) --- */
+const QUIZ = [
+ {
+  body:'terra',
+  tag:'Tappa 1 • Terra',
+  q:'Perché la Terra possiede acqua liquida in superficie e una temperatura mite rispetto a Venere?',
+  options:[
+   'A causa della sua distanza ideale dal Sole e di un effetto serra naturale bilanciato.',
+   'Perché è il pianeta più vicino in assoluto al Sole.',
+   'Perché possiede anelli di ghiaccio protettivi attorno all’equatore.',
+   'Perché la sua atmosfera è composta al 96% da anidride carbonica densa.'
+  ],
+  correct:0,
+  why:'Corretto! La giusta distanza dal Sole (zona abitabile) e l’effetto serra naturale mantengono l’acqua liquida.'
+ },
+ {
+  body:'luna',
+  tag:'Tappa 2 • Luna',
+  q:'Come si ritiene che si sia formata la Luna secondo l’ipotesi dell’impatto gigante?',
+  options:[
+   'È stata catturata dalla gravità terrestre mentre vagava nello spazio profondo.',
+   'Dallo scontro tra la Terra primordiale e un corpo grande come Marte, 4,5 miliardi di anni fa.',
+   'Dalla condensazione diretta della nebulosa solare originaria.',
+   'Per distacco rapido dovuto alla rapidissima rotazione della Terra giovane.'
+  ],
+  correct:1,
+  why:'Corretto! I detriti scagliati nello spazio dall’impatto gigante si sono aggregati formando la nostra Luna.'
+ },
+ {
+  body:'sole',
+  tag:'Tappa 3 • Sole',
+  q:'Quale curiosità affascinante riguarda la temperatura della corona solare rispetto alla superficie?',
+  options:[
+   'La superficie è molto più calda della corona.',
+   'La corona è oltre 100 volte più calda della superficie del Sole.',
+   'Hanno esattamente la stessa identica temperatura costante.',
+   'La corona è fredda come il ghiaccio interstellare.'
+  ],
+  correct:1,
+  why:'Corretto! La corona raggiunge circa 1 milione di gradi, mentre la superficie si ferma a circa 5.500 °C.'
+ },
+ {
+  body:'mercurio',
+  tag:'Tappa 4 • Mercurio',
+  q:'Mercurio è il pianeta più vicino al Sole, ma qual è il pianeta con la temperatura superficiale più alta in assoluto?',
+  options:[
+   'Mercurio, a causa della vicinanza estrema.',
+   'Marte, a causa delle tempeste di sabbia roventi.',
+   'Venere, per via dell’effetto serra estremo della sua densa atmosfera di CO₂.',
+   'Giove, per via dell’energia rilasciata dal suo nucleo.'
+  ],
+  correct:2,
+  why:'Corretto! Venere raggiunge i 465 °C grazie a un effetto serra fuori controllo, battendo Mercurio.'
+ },
+ {
+  body:'venere',
+  tag:'Tappa 5 • Venere',
+  q:'Cosa caratterizza in modo unico la rotazione del pianeta Venere sul proprio asse?',
+  options:[
+   'Ruota in senso retrogrado (al contrario rispetto alla maggior parte dei pianeti) e molto lentamente.',
+   'Ha la rotazione più veloce di tutto il Sistema Solare.',
+   'Il suo asse è inclinato esattamente di 98 gradi.',
+   'Non compie alcuna rotazione su se stesso.'
+  ],
+  correct:0,
+  why:'Corretto! Venere ruota al contrario e impiega 243 giorni terrestri per un solo giro su se stesso.'
+ },
+ {
+  body:'marte',
+  tag:'Tappa 6 • Marte',
+  q:'Perché oggi l’acqua liquida non può persistere stabilmente sulla superficie di Marte?',
+  options:[
+   'Perché la temperatura è sempre sopra i 200 °C.',
+   'Perché la pressione atmosferica è estremamente bassa (circa lo 0,6% di quella terrestre).',
+   'Perché il suolo marziano respinge chimicamente le molecole d’acqua.',
+   'Perché il Sole illumina Marte troppo di rado.'
+  ],
+  correct:1,
+  why:'Corretto! Con una pressione atmosferica così bassa, l’acqua liquida evapora o gela istantaneamente.'
+ },
+ {
+  body:'cerere',
+  tag:'Tappa 7 • Fascia di Asteroidi',
+  q:'Perché la materia della Fascia degli Asteroidi tra Marte e Giove non ha formato un pianeta?',
+  options:[
+   'La gravità di Giove e le risonanze orbitali hanno reso gli urti troppo violenti, frantumando i corpi.',
+   'I frammenti erano troppo leggeri e sono volati via dal Sistema Solare.',
+   'Il Sole ha impedito la fusione delle rocce con il suo forte vento.',
+   'Si tratta in realtà dei resti di un antico pianeta esploso di recente.'
+  ],
+  correct:0,
+  why:'Corretto! La forte attrazione di Giove agita i frammenti impedendo loro di accrescersi in un unico pianeta.'
+ },
+ {
+  body:'giove',
+  tag:'Tappa 8 • Giove',
+  q:'Perché non è possibile atterrare sulla superficie del gigante Giove?',
+  options:[
+   'Perché è interamente coperto da un oceano di lava bollente.',
+   'Perché non possiede una solida superficie rocciosa: i gas diventano via via più densi e liquidi all’interno.',
+   'Perché la sua forza di gravità respinge qualsiasi oggetto in avvicinamento.',
+   'Perché è circondato da un campo magnetico impenetrabile.'
+  ],
+  correct:1,
+  why:'Corretto! Giove è un gigante gassoso senza crosta solida; la pressione aumenta convertendo i gas in liquidi.'
+ },
+ {
+  body:'saturno',
+  tag:'Tappa 9 • Saturno',
+  q:'Quale particolarità fisica straordinaria viene spesso associata alla densità media di Saturno?',
+  options:[
+   'Ha una densità superiore a quella del ferro solido.',
+   'La sua densità è così bassa che galleggerebbe in una vasca d’acqua gigantesca.',
+   'Ha una densità perfettamente identica a quella del Sole.',
+   'La densità varia continuamente da un polo all’altro.'
+  ],
+  correct:1,
+  why:'Corretto! Saturno è composto prevalentemente da idrogeno ed elio leggeri, con una densità inferiore all’acqua (0,69 g/cm³).'
+ },
+ {
+  body:'nettuno',
+  tag:'Tappa 10 • Nettuno',
+  q:'Qual è una delle caratteristiche meteorologiche più impressionanti del lontanissimo Nettuno?',
+  options:[
+   'Venti violentissimi che superano i 2.000 km/h alimentati dal calore interno.',
+   'Un’assenza totale di atmosfera e venti.',
+   'Piogge continue di metallo fuso incandescenti.',
+   'Tempeste di sabbia identiche a quelle marziane.'
+  ],
+  correct:0,
+  why:'Corretto! Nettuno possiede i venti più veloci del Sistema Solare, spinti dal calore interno e dal basso attrito.'
+ }
+];
+
+/* --- STATO DEL QUIZ --- */
+let currentQ = 0;
+let score = 0;
+let answered = false;
+let userAnswers = new Array(QUIZ.length).fill(null);
+
+/* --- MOTORE GRAFICO 3D (Canvas) --- */
+let W, H, T = 0, ac, mus, on = false;
+let rotX = 0.4, rotY = 0, isDragging = false, startX = 0, startY = 0;
+const cv = $('cv'), ctx = cv.getContext('2d');
+const ST = Array.from({length: 150}, () => ({
+ x: Math.random(), y: Math.random(), z: 0.2 + Math.random() * 0.8,
+ col: `rgba(200,220,255,${.3 + Math.random() * .7})`
+}));
+
+function resize() {
+ W = innerWidth; H = innerHeight;
+ cv.width = W * (window.devicePixelRatio || 1);
+ cv.height = H * (window.devicePixelRatio || 1);
+ ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+}
+
+function ring(b, x, y, r, front) {
+ const [i, o, col, tilt] = b.ring, A = ctx.globalAlpha;
+ ctx.save(); ctx.translate(x, y); ctx.rotate(tilt); ctx.scale(1, .3);
+ ctx.strokeStyle = col; ctx.lineWidth = r * (o - i) * .3;
+ [[.17, .55], [.5, .9], [.83, .4]].forEach(([f, al]) => {
+  ctx.globalAlpha = al * A;
+  ctx.beginPath();
+  ctx.arc(0, 0, r * (i + (o - i) * f), front ? 0 : Math.PI, front ? Math.PI : 6.283);
+  ctx.stroke();
+ });
+ ctx.restore();
+}
+
+function drawBody(b, x, y, r, time) {
+ if (r < 1) return;
+ ctx.save();
+ ctx.translate(x, y);
+ ctx.rotate(rotY);
+
+ if (b.fx) {
+  const p = 1 + .05 * Math.sin(time * 2.2);
+  const g = ctx.createRadialGradient(0, 0, r * .9, 0, 0, r * 2.8 * p);
+  g.addColorStop(0, 'rgba(255,170,60,.6)'); g.addColorStop(1, 'rgba(255,90,20,0)');
+  ctx.fillStyle = g; ctx.fillRect(-r * 3, -r * 3, r * 6, r * 6);
+ } else if (b.atm) {
+  const g = ctx.createRadialGradient(0, 0, r * .95, 0, 0, r * 1.25);
+  g.addColorStop(0, b.atm + 'aa'); g.addColorStop(1, b.atm + '00');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r * 1.25, 0, 6.283); ctx.fill();
+ }
+
+ if (b.ring) ring(b, 0, 0, r, 0);
+
+ let g = ctx.createRadialGradient(-r * .35, -r * .35, r * .1, 0, 0, r * 1.05);
+ g.addColorStop(0, b.c[0]); g.addColorStop(1, b.c[1]);
+ ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.283); ctx.fill();
+
+ if (r > 10) {
+  ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.283); ctx.clip();
+  if (b.bd) {
+   for (let i = 0; i < 9; i++) {
+    ctx.fillStyle = b.bd[i % b.bd.length] + '88';
+    ctx.fillRect(-r, -r + i * r * .222, 2 * r, r * .19);
+   }
+  }
+  if (b.wind) {
+   for (let j = 0; j < 9; j++) {
+    const xx = -r + ((time * (55 + j * 13) + j * 47) * r / 120) % (2 * r);
+    ctx.fillStyle = 'rgba(255,255,255,.35)';
+    ctx.fillRect(xx, -r * .8 + j * r * .18, r * .4, Math.max(1, r * .015));
+   }
+  }
+  (b.sp || []).forEach(s => {
+   const l = s[0] + time * b.w * (s[5] === undefined ? 1 : s[5]), k = Math.cos(l);
+   if (k < .08) return;
+   ctx.fillStyle = s[4]; ctx.beginPath();
+   ctx.ellipse(r * Math.sin(l) * .8, r * Math.sin(s[1]), Math.max(.5, r * s[2] * Math.abs(k)), r * s[3], 0, 0, 6.283);
+   ctx.fill();
+  });
+  if (!b.fx) {
+   const g2 = ctx.createRadialGradient(-r * .55, -r * .3, r * .3, 0, 0, r * 1.25);
+   g2.addColorStop(0, 'rgba(0,0,10,0)'); g2.addColorStop(.6, 'rgba(0,0,10,.25)'); g2.addColorStop(1, 'rgba(0,0,10,.8)');
+   ctx.fillStyle = g2; ctx.fillRect(-r, -r, 2 * r, 2 * r);
+  }
+  ctx.restore();
+ }
+
+ if (b.fx) {
+  ctx.strokeStyle = 'rgba(255,150,50,.6)'; ctx.lineWidth = Math.max(1, r * .03);
+  for (let i = 0; i < 6; i++) {
+   const a = i * 1.05 + time * .1, h = r * (.1 + .08 * Math.sin(time * 1.5 + i * 2));
+   ctx.beginPath(); ctx.arc(Math.cos(a) * r, Math.sin(a) * r, h, a - 1.57, a + 1.57); ctx.stroke();
+  }
+ }
+ if (b.ring) ring(b, 0, 0, r, 1);
+ ctx.restore();
+}
+
+function loop(timestamp) {
+ const dt = 0.016; T += dt;
+ ctx.clearRect(0, 0, W, H);
+ 
+ ST.forEach(s => {
+  ctx.fillStyle = s.col;
+  ctx.fillRect((s.x * W + T * 2 * s.z) % W, (s.y * H) % H, s.z * 2.2, s.z * 2.2);
+ });
+
+ const qData = QUIZ[currentQ];
+ if (qData) {
+  const b = BODIES[qData.body];
+  if (b) {
+   // Posizionamento centrale-destro o leggermente spostato per valorizzare le dimensioni imponenti
+   const cx = W > 768 ? W * 0.76 : W * 0.5;
+   const cy = W > 768 ? H * 0.5 : H * 0.22;
+   const r = Math.min(W, H) * b.z * (W > 768 ? 0.82 : 0.52);
+   rotY += 0.005;
+   drawBody(b, cx, cy, r, T);
+  }
+ }
+ requestAnimationFrame(loop);
+}
+
+function initAudio() {
+ if (ac) return;
+ ac = new (window.AudioContext || window.webkitAudioContext)();
+ mus = ac.createGain(); mus.gain.value = 0; mus.connect(ac.destination);
+ const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 400; f.connect(mus);
+ [55, 82.5, 110].forEach(h => { const o = ac.createOscillator(); o.frequency.value = h; o.connect(f); o.start(); });
+}
+function toggleSound() {
+ on = !on; $('bS').textContent = 'Suono: ' + (on ? 'ON' : 'OFF');
+ try {
+  if (on) { initAudio(); ac.resume(); mus.gain.setTargetAtTime(.1, ac.currentTime, .5); }
+  else if (mus) mus.gain.setTargetAtTime(0, ac.currentTime, .2);
+ } catch (e) { on = false; }
+}
+function playTone(type) {
+ if (!on || !ac) return;
+ const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+ o.frequency.value = type === 'ok' ? 587.33 : 220;
+ g.gain.setValueAtTime(.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + .3);
+ o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .35);
+}
+
+function renderQuiz() {
+ const card = $('card');
+ if (currentQ >= QUIZ.length) {
+  const perc = Math.round((score / QUIZ.length) * 100);
+  let giudizio = "Esploratore Spaziale Esperto! 🚀";
+  if (perc < 50) giudizio = "Riprova, i confini del sistema solare ti attendono!";
+  else if (perc < 80) giudizio = "Ottimo lavoro, ottima conoscenza della missione!";
+
+  card.innerHTML = `
+   <div style="text-align:center">
+     <small class="q-meta">Missione Conclusa</small>
+     <h2>Rapporto Finale di Volo</h2>
+     <p>Hai completato tutte le 10 tappe del quiz spaziale di Missione AFELIO.</p>
+     <div class="score-big">${score} / ${QUIZ.length}</div>
+     <p class="lead" style="color:var(--oro); font-size:1.1rem; margin:.6em 0">${giudizio} (${perc}%)</p>
+     <p class="mut" style="margin:1rem 0">Le tue risposte hanno permesso di raccogliere preziosi dati sui corpi celesti visitati.</p>
+     <button onclick="restartQuiz()" style="margin-top:1rem; padding:.7em 1.5rem; font-weight:bold">Riavvia la Missione 🔄</button>
+   </div>
+  `;
+  return;
+ }
+
+ const q = QUIZ[currentQ];
+ card.innerHTML = `
+  <div style="display:flex; justify-content:space-between; align-items:center">
+    <span class="q-meta">${q.tag}</span>
+    <span class="q-meta">Domanda ${currentQ + 1} di ${QUIZ.length}</span>
+  </div>
+  <div class="question-text">${q.q}</div>
+  <div class="options">
+    ${q.options.map((opt, i) => `<button onclick="checkAnswer(${i})" id="opt-${i}">${String.fromCharCode(65 + i)}. ${opt}</button>`).join('')}
+  </div>
+  <div id="fb" class="feedback-box"></div>
+  <div class="nav-row">
+    <span class="mut">Punteggio attuale: ${score}</span>
+    <button id="nextBtn" onclick="nextQuestion()" style="display:none">Prossima Tappa ▶</button>
+  </div>
+ `;
+ answered = false;
+}
+
+function checkAnswer(selectedIdx) {
+ if (answered) return;
+ answered = true;
+ const q = QUIZ[currentQ];
+ const isCorrect = (selectedIdx === q.correct);
+ 
+ if (isCorrect) {
+  score++;
+  playTone('ok');
+  $('opt-' + selectedIdx).classList.add('correct');
+ } else {
+  playTone('err');
+  $('opt-' + selectedIdx).classList.add('wrong');
+  $('opt-' + q.correct).classList.add('correct');
+ }
+
+ const fb = $('fb');
+ fb.className = 'feedback-box ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+ fb.innerHTML = `<b>${isCorrect ? '✔ Risposta Corretta!' : '❌ Risposta Errata.'}</b><br>${q.why}`;
+ fb.style.display = 'block';
+
+ for (let i = 0; i < q.options.length; i++) {
+  $('opt-' + i).disabled = true;
+ }
+
+ $('nextBtn').style.display = 'block';
+}
+
+function nextQuestion() {
+ currentQ++;
+ renderQuiz();
+}
+
+function restartQuiz() {
+ currentQ = 0;
+ score = 0;
+ userAnswers.fill(null);
+ renderQuiz();
+}
+
+cv.onmousedown = e => { isDragging = true; startX = e.clientX; startY = e.clientY; };
+window.onmousemove = e => {
+ if (!isDragging) return;
+ const dx = e.clientX - startX;
+ rotY += dx * 0.008;
+ startX = e.clientX; startY = e.clientY;
+};
+window.onmouseup = () => { isDragging = false; };
+
+cv.ontouchstart = e => { if(e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX; startY = e.touches[0].clientY; } };
+cv.ontouchmove = e => {
+ if (!isDragging || e.touches.length !== 1) return;
+ const dx = e.touches[0].clientX - startX;
+ rotY += dx * 0.008;
+ startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+};
+cv.ontouchend = () => { isDragging = false; };
+
+window.onresize = resize;
+
+resize();
+renderQuiz();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

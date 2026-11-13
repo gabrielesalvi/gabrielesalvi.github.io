@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulazione 3D – Dentro il Reattore</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0f0a; color: #e0f0e0; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; height: 100vh; }
+    #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    #info-panel { position: absolute; top: 16px; left: 16px; max-width: 320px; background: rgba(12,18,12,0.88); border: 1px solid #3a5a3a; border-radius: 12px; padding: 12px 14px; backdrop-filter: blur(10px); z-index: 20; font-size: 13px; line-height: 1.4; }
+    #info-panel h1 { font-size: 16px; color: #7ecf7e; margin-bottom: 4px; }
+    #info-panel p { margin-bottom: 4px; color: #c8e0c8; }
+    .formula { background: rgba(30,60,40,0.5); padding: 3px 7px; border-radius: 4px; font-family: Consolas, monospace; color: #9fe09f; display: inline-block; margin: 2px 0; }
+    #pov-buttons { display: flex; gap: 6px; margin: 8px 0; }
+    #pov-buttons button { flex: 1; padding: 6px 4px; font-size: 12px; }
+    #menu-panel { position: absolute; top: 16px; right: 16px; width: 240px; background: rgba(12,18,12,0.88); border: 1px solid #3a5a3a; border-radius: 12px; padding: 12px; backdrop-filter: blur(10px); z-index: 20; font-size: 12.5px; }
+    #menu-panel h3 { color: #7ecf7e; margin-bottom: 8px; font-size: 14px; }
+    .slider-row { margin-bottom: 8px; }
+    .slider-row label { display: block; font-size: 11.5px; margin-bottom: 2px; color: #b0d0b0; }
+    .slider-row input[type="range"] { width: 100%; accent-color: #4a9a4a; }
+    .slider-row .val { float: right; color: #9fe09f; font-family: monospace; font-size: 11px; }
+    #status { position: absolute; bottom: 16px; right: 16px; background: rgba(12,20,12,0.88); border: 1px solid #3a7a3a; padding: 8px 12px; border-radius: 8px; font-family: Consolas, monospace; font-size: 12.5px; z-index: 20; }
+    #status div { margin: 2px 0; }
+    #status .highlight { color: #7ecf7e; font-weight: bold; }
+    #controls { position: absolute; bottom: 16px; left: 16px; display: flex; gap: 6px; z-index: 20; }
+    button { background: #1a3a2a; color: #d0e8d0; border: 1px solid #4a8a4a; padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 12.5px; }
+    button:hover { background: #2a5a3a; }
+    button.active { background: #3a7a4a; }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <div id="info-panel">
+    <h1>Dentro il Reattore</h1>
+    <p>Vista immersiva dell'effetto Cerenkov.</p>
+    <div class="formula">cos θ = 1 / (β · n)</div>
+    <div id="pov-buttons">
+      <button id="btn-occhio" class="active">Occhio Umano</button>
+      <button id="btn-cerenkov">Effetto Cerenkov</button>
+    </div>
+    <p style="font-size:11px; opacity:0.8;">Trascina per guardarti intorno</p>
+  </div>
+
+  <div id="menu-panel">
+    <h3>Parametri</h3>
+    <div class="slider-row">
+      <label>β = v/c <span class="val" id="val-beta">0.95</span></label>
+      <input type="range" id="slider-beta" min="0.75" max="0.99" step="0.01" value="0.95">
+    </div>
+    <div class="slider-row">
+      <label>n acqua <span class="val" id="val-n">1.33</span></label>
+      <input type="range" id="slider-n" min="1.20" max="1.45" step="0.01" value="1.33">
+    </div>
+    <div class="slider-row">
+      <label>Densita relativa <span class="val" id="val-density">1.00</span></label>
+      <input type="range" id="slider-density" min="0.85" max="1.10" step="0.01" value="1.00">
+    </div>
+    <div class="slider-row">
+      <label>Frequenza onde <span class="val" id="val-freq">1.4</span></label>
+      <input type="range" id="slider-freq" min="0.5" max="3.0" step="0.1" value="1.4">
+    </div>
+    <div class="slider-row">
+      <label>Intensita blu <span class="val" id="val-glow">0.85</span></label>
+      <input type="range" id="slider-glow" min="0.3" max="1.0" step="0.05" value="0.85">
+    </div>
+  </div>
+
+  <div id="controls">
+    <button id="btn-play" class="active">Pausa</button>
+    <button id="btn-reset">Reset</button>
+    <button id="btn-zoom-in">Zoom +</button>
+    <button id="btn-zoom-out">Zoom -</button>
+  </div>
+
+  <div id="status">
+    <div>t: <span class="highlight" id="stat-t">0.00</span></div>
+    <div>β: <span class="highlight" id="stat-beta">0.95</span></div>
+    <div>n: <span class="highlight" id="stat-n">1.33</span></div>
+    <div>θ: <span class="highlight" id="stat-theta">41°</span></div>
+    <div><span class="highlight" id="stat-state">Sopra soglia</span></div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    let beta = 0.95, n = 1.33, density = 1.00, waveFreq = 1.4, glowIntensity = 0.85, playing = true, pov = 'occhio';
+
+    function effectiveN() { return n * density; }
+    function particleSpeed() { return beta; }
+    function lightSpeedMedium() { return 1 / effectiveN(); }
+    function cherenkovAngle() {
+      const b = beta, neff = effectiveN();
+      if (b * neff <= 1) return 0;
+      return Math.acos(1 / (b * neff));
+    }
+    function isAboveThreshold() { return beta * effectiveN() > 1; }
+
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a120a);
+    scene.fog = new THREE.FogExp2(0x0a120a, 0.025);
+
+    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.05, 200);
+    // Camera alta, vista dall'alto sulla vasca APERTA
+    camera.position.set(6, 22, 12);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.target.set(0, 2.5, 0);
+    controls.minDistance = 6;
+    controls.maxDistance = 60;
+    controls.enablePan = true;
+
+    scene.add(new THREE.AmbientLight(0x2a3a2a, 0.25));
+    const dirLight = new THREE.DirectionalLight(0xc0d0c0, 0.5);
+    dirLight.position.set(5, 15, 5);
+    scene.add(dirLight);
+
+    const bluePointLight = new THREE.PointLight(0x44aaff, 0, 25);
+    bluePointLight.position.set(0, 4.2, 0);
+    scene.add(bluePointLight);
+
+    const reactorGroup = new THREE.Group();
+    scene.add(reactorGroup);
+
+    // Vasca vista dall'interno
+    const poolW = 14, poolD = 10, poolH = 9, wallT = 0.5;
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x4a5550, metalness: 0.75, roughness: 0.42, side: THREE.DoubleSide });
+
+    const bottom = new THREE.Mesh(new THREE.BoxGeometry(poolW, 0.4, poolD), wallMat);
+    bottom.position.y = 0;
+    reactorGroup.add(bottom);
+
+    // Pareti
+    const wallGeoX = new THREE.BoxGeometry(poolW + wallT, poolH, wallT);
+    const wallGeoZ = new THREE.BoxGeometry(wallT, poolH, poolD);
+    const wall1 = new THREE.Mesh(wallGeoX, wallMat); wall1.position.set(0, poolH/2, poolD/2); reactorGroup.add(wall1);
+    const wall2 = new THREE.Mesh(wallGeoX, wallMat); wall2.position.set(0, poolH/2, -poolD/2); reactorGroup.add(wall2);
+    const wall3 = new THREE.Mesh(wallGeoZ, wallMat); wall3.position.set(poolW/2, poolH/2, 0); reactorGroup.add(wall3);
+    const wall4 = new THREE.Mesh(wallGeoZ, wallMat); wall4.position.set(-poolW/2, poolH/2, 0); reactorGroup.add(wall4);
+
+    const rim = new THREE.Mesh(new THREE.BoxGeometry(poolW + 1.2, 0.3, poolD + 1.2), new THREE.MeshStandardMaterial({ color: 0x5a6560, metalness: 0.8, roughness: 0.3 }));
+    rim.position.y = poolH;
+    reactorGroup.add(rim);
+
+    // Acqua
+    const waterMat = new THREE.MeshPhysicalMaterial({
+      color: 0x1a4a3a, transparent: true, opacity: 0.15, roughness: 0.005,
+      transmission: 0.95, thickness: 8, ior: 1.33, side: THREE.DoubleSide
+    });
+    const water = new THREE.Mesh(new THREE.BoxGeometry(poolW - 0.3, poolH - 0.8, poolD - 0.3), waterMat);
+    water.position.y = poolH / 2 + 0.1;
+    reactorGroup.add(water);
+
+    const surface = new THREE.Mesh(
+      new THREE.PlaneGeometry(poolW - 0.5, poolD - 0.5),
+      new THREE.MeshPhysicalMaterial({ color: 0x3a8a6a, transparent: true, opacity: 0.28, roughness: 0.003, clearcoat: 0.25 })
+    );
+    surface.rotation.x = -Math.PI / 2;
+    surface.position.y = poolH - 0.05;
+    reactorGroup.add(surface);
+
+    // Assemblaggi combustibile
+    const fuelGroup = new THREE.Group();
+    reactorGroup.add(fuelGroup);
+    const fuelMat = new THREE.MeshStandardMaterial({ color: 0x6a756a, metalness: 0.55, roughness: 0.48 });
+    const controlMat = new THREE.MeshStandardMaterial({ color: 0x8a8a6a, metalness: 0.65, roughness: 0.38 });
+    const rodGeo = new THREE.CylinderGeometry(0.06, 0.06, 7.5, 6);
+    const controlGeo = new THREE.CylinderGeometry(0.1, 0.1, 7.8, 8);
+
+    for (let ix = -2; ix <= 2; ix++) {
+      for (let iz = -2; iz <= 2; iz++) {
+        const ax = ix * 2.2, az = iz * 2.0;
+        const isControl = (ix + iz) % 3 === 0;
+        for (let rx = -0.3; rx <= 0.3; rx += 0.2) {
+          for (let rz = -0.3; rz <= 0.3; rz += 0.2) {
+            const isCenter = Math.abs(rx) < 0.05 && Math.abs(rz) < 0.05;
+            const rod = new THREE.Mesh(isCenter && isControl ? controlGeo : rodGeo, isCenter && isControl ? controlMat : fuelMat);
+            rod.position.set(ax + rx, 4.0, az + rz);
+            fuelGroup.add(rod);
+          }
+        }
+        const cap = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.12, 0.8), new THREE.MeshStandardMaterial({ color: 0x5a6560, metalness: 0.75 }));
+        cap.position.set(ax, 7.8, az);
+        fuelGroup.add(cap);
+      }
+    }
+
+    // Particella
+    const particle = new THREE.Mesh(new THREE.SphereGeometry(0.14, 32, 32), new THREE.MeshBasicMaterial({ color: 0xff5577 }));
+    scene.add(particle);
+    particle.add(new THREE.Mesh(new THREE.SphereGeometry(0.32, 16, 16), new THREE.MeshBasicMaterial({ color: 0xff3355, transparent: true, opacity: 0.22 })));
+
+    // Onde
+    const waveGroup = new THREE.Group();
+    scene.add(waveGroup);
+    const waves = [];
+    function createWave(z, t0) {
+      const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.035, 10, 6),
+        new THREE.MeshBasicMaterial({ color: 0x55ddaa, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false })
+      );
+      mesh.position.set(0, 4.2, z);
+      mesh.userData = { t0 };
+      waveGroup.add(mesh);
+      waves.push(mesh);
+    }
+
+    let coneMesh = null;
+    function updateConeGeometry() {
+      if (coneMesh) { scene.remove(coneMesh); coneMesh.geometry.dispose(); coneMesh.material.dispose(); }
+      const theta = cherenkovAngle();
+      if (theta < 0.05) { coneMesh = null; return; }
+      const h = 8, r = h * Math.tan(theta);
+      const geo = new THREE.ConeGeometry(r, h, 28, 1, true);
+      geo.rotateX(-Math.PI / 2);
+      geo.translate(0, 0, -h / 2);
+      coneMesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x33aa66, transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false }));
+      scene.add(coneMesh);
+    }
+    updateConeGeometry();
+
+    // Esplosione
+    const explosionGroup = new THREE.Group();
+    scene.add(explosionGroup);
+    const explosionSpheres = [];
+    function spawnExplosion(pos) {
+      for (let i = 0; i < 3; i++) {
+        const s = new THREE.Mesh(
+          new THREE.SphereGeometry(0.08 + i * 0.06, 10, 8),
+          new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75 - i * 0.12, side: THREE.BackSide, depthWrite: false })
+        );
+        s.position.copy(pos);
+        s.userData = { age: 0, maxAge: 0.16 + i * 0.03, startScale: 0.15, type: 'flash' };
+        explosionGroup.add(s);
+        explosionSpheres.push(s);
+      }
+      for (let i = 0; i < 5; i++) {
+        const s = new THREE.Mesh(
+          new THREE.SphereGeometry(0.2 + i * 0.2, 12, 8),
+          new THREE.MeshBasicMaterial({ color: i < 2 ? 0x66ccff : 0x2288ee, transparent: true, opacity: 0.5 - i * 0.06, side: THREE.BackSide, depthWrite: false })
+        );
+        s.position.copy(pos);
+        s.userData = { age: 0, maxAge: 0.65 + i * 0.07, startScale: 0.25 + i * 0.2, type: 'wave' };
+        explosionGroup.add(s);
+        explosionSpheres.push(s);
+      }
+    }
+
+    let t = 0, lastWaveTime = -1, lastExplosionTime = -2;
+    const zStart = -3.5, zEnd = 3.5;
+
+    const btnPlay = document.getElementById('btn-play');
+    const btnReset = document.getElementById('btn-reset');
+    const btnOcchio = document.getElementById('btn-occhio');
+    const btnCerenkov = document.getElementById('btn-cerenkov');
+    const sliderBeta = document.getElementById('slider-beta');
+    const sliderN = document.getElementById('slider-n');
+    const sliderDensity = document.getElementById('slider-density');
+    const sliderFreq = document.getElementById('slider-freq');
+    const sliderGlow = document.getElementById('slider-glow');
+
+    function updateLabels() {
+      document.getElementById('val-beta').textContent = beta.toFixed(2);
+      document.getElementById('val-n').textContent = n.toFixed(2);
+      document.getElementById('val-density').textContent = density.toFixed(2);
+      document.getElementById('val-freq').textContent = waveFreq.toFixed(1);
+      document.getElementById('val-glow').textContent = glowIntensity.toFixed(2);
+    }
+
+    sliderBeta.addEventListener('input', e => { beta = parseFloat(e.target.value); updateLabels(); updateConeGeometry(); });
+    sliderN.addEventListener('input', e => { n = parseFloat(e.target.value); updateLabels(); updateConeGeometry(); waterMat.ior = n; });
+    sliderDensity.addEventListener('input', e => { density = parseFloat(e.target.value); updateLabels(); updateConeGeometry(); });
+    sliderFreq.addEventListener('input', e => { waveFreq = parseFloat(e.target.value); updateLabels(); });
+    sliderGlow.addEventListener('input', e => { glowIntensity = parseFloat(e.target.value); updateLabels(); });
+
+    btnPlay.addEventListener('click', () => {
+      playing = !playing;
+      btnPlay.textContent = playing ? 'Pausa' : 'Play';
+      btnPlay.classList.toggle('active', playing);
+    });
+    btnReset.addEventListener('click', () => {
+      t = 0; lastWaveTime = -1; lastExplosionTime = -2;
+      while (waves.length) { const w = waves.pop(); waveGroup.remove(w); w.geometry.dispose(); w.material.dispose(); }
+      while (explosionSpheres.length) { const s = explosionSpheres.pop(); explosionGroup.remove(s); s.geometry.dispose(); s.material.dispose(); }
+    });
+
+    const btnZoomIn = document.getElementById('btn-zoom-in');
+    const btnZoomOut = document.getElementById('btn-zoom-out');
+    btnZoomIn.addEventListener('click', () => {
+      const dir = new THREE.Vector3();
+      camera.getWorldDirection(dir);
+      camera.position.addScaledVector(dir, -1.5);
+    });
+    btnZoomOut.addEventListener('click', () => {
+      const dir = new THREE.Vector3();
+      camera.getWorldDirection(dir);
+      camera.position.addScaledVector(dir, 1.5);
+    });
+
+    function setPOV(newPov) {
+      pov = newPov;
+      btnOcchio.classList.toggle('active', pov === 'occhio');
+      btnCerenkov.classList.toggle('active', pov === 'cerenkov');
+      waveGroup.visible = pov === 'cerenkov';
+      if (coneMesh) coneMesh.visible = pov === 'cerenkov';
+      explosionGroup.visible = pov === 'occhio';
+    }
+    btnOcchio.addEventListener('click', () => setPOV('occhio'));
+    btnCerenkov.addEventListener('click', () => setPOV('cerenkov'));
+    setPOV('occhio');
+
+    renderer.domElement.addEventListener('dblclick', () => {
+      camera.position.set(6, 22, 12);
+      controls.target.set(0, 2.5, 0);
+      controls.update();
+    });
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+
+      if (playing) {
+        t += dt * 1.2;
+        let z = zStart + particleSpeed() * t * 1.3;
+        if (z > zEnd) {
+          t = 0; lastWaveTime = -1; lastExplosionTime = -2;
+          while (waves.length) { const w = waves.pop(); waveGroup.remove(w); w.geometry.dispose(); w.material.dispose(); }
+          while (explosionSpheres.length) { const s = explosionSpheres.pop(); explosionGroup.remove(s); s.geometry.dispose(); s.material.dispose(); }
+          z = zStart;
+        }
+        particle.position.set(0, 4.2, z);
+        bluePointLight.position.copy(particle.position);
+
+        if (t - lastWaveTime > (1 / waveFreq) && isAboveThreshold()) {
+          createWave(z, t);
+          lastWaveTime = t;
+        }
+
+        const ls = lightSpeedMedium();
+        for (let i = waves.length - 1; i >= 0; i--) {
+          const w = waves[i];
+          const age = t - w.userData.t0;
+          w.scale.setScalar(Math.max(0.01, (ls * age * 1.3) / 0.035));
+          w.material.opacity = Math.max(0, 0.25 - age * 0.014);
+          if (age > 6) { waveGroup.remove(w); w.geometry.dispose(); w.material.dispose(); waves.splice(i, 1); }
+        }
+
+        if (coneMesh && isAboveThreshold()) {
+          coneMesh.position.set(0, 4.2, z);
+          coneMesh.visible = pov === 'cerenkov';
+        } else if (coneMesh) coneMesh.visible = false;
+
+        if (pov === 'occhio' && isAboveThreshold()) {
+          if (t - lastExplosionTime > 0.2) { spawnExplosion(particle.position); lastExplosionTime = t; }
+          bluePointLight.intensity = glowIntensity * 18 + Math.sin(t * 22) * 8;
+          waterMat.color.setHex(0x1a5a4a);
+        } else {
+          bluePointLight.intensity = 0;
+          waterMat.color.setHex(0x1a4a3a);
+        }
+
+        for (let i = explosionSpheres.length - 1; i >= 0; i--) {
+          const s = explosionSpheres[i];
+          s.userData.age += dt;
+          const progress = s.userData.age / s.userData.maxAge;
+          if (progress > 1) { explosionGroup.remove(s); s.geometry.dispose(); s.material.dispose(); explosionSpheres.splice(i, 1); continue; }
+          const expand = s.userData.type === 'flash' ? 10 : 8;
+          s.scale.setScalar(s.userData.startScale + progress * expand);
+          const fade = s.userData.type === 'flash' ? (1 - progress * 1.8) : (1 - progress);
+          s.material.opacity = Math.max(0, fade) * glowIntensity * 0.7;
+        }
+      }
+
+      const thetaDeg = (cherenkovAngle() * 180 / Math.PI).toFixed(0);
+      document.getElementById('stat-t').textContent = t.toFixed(2);
+      document.getElementById('stat-beta').textContent = beta.toFixed(2);
+      document.getElementById('stat-n').textContent = effectiveN().toFixed(2);
+      document.getElementById('stat-theta').textContent = isAboveThreshold() ? thetaDeg + '°' : '—';
+      document.getElementById('stat-state').textContent = isAboveThreshold() ? 'Sopra soglia' : 'Sotto soglia';
+      document.getElementById('stat-state').style.color = isAboveThreshold() ? '#7ecf7e' : '#ffaa66';
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    updateLabels();
+    animate();
+  </script>
+</body>
+</html>

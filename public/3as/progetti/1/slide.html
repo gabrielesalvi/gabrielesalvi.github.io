@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La galleria del vento - Frictionless Dudes</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--card:rgba(15,15,20,0.85);--ink:#f0f0f5;--edge:#ff2a2a;--edge-glow:rgba(255,42,42,0.4);--bg:#07070a;--sub:#8a8a9e}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:'Rajdhani',system-ui,sans-serif;color:var(--ink)}
+#stage{position:fixed;inset:0;overflow:hidden;background:radial-gradient(circle at 50% 50%, #1a080c 0%, #050508 100%);cursor:pointer;user-select:none;-webkit-user-select:none}
+#grid-bg{position:absolute;inset:0;width:100%;height:100%;opacity:0.15;pointer-events:none}
+
+/* Supersonic Drone/Jet (Replaces Cartoon Plane) */
+#plane{position:absolute;left:0;top:0;width:24vw;z-index:6;pointer-events:none;opacity:0;transform:translate(130vw,-30vh);transition:transform 1.4s cubic-bezier(.1,.7,.1,1),opacity 1s;filter:drop-shadow(0 0 12px var(--edge))}
+#plane.nt{transition:none!important}
+body[data-s="1"] #plane{opacity:1;transform:translate(62vw,10vh) rotate(-2deg)}
+#plane.fly{opacity:1;animation:fly 2.5s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes fly{from{transform:translate(-35vw,30vh) scale(0.8)}50%{transform:translate(45vw,10vh) scale(1.1)}to{transform:translate(135vw,20vh) scale(0.9)}}
+#plane svg{display:block;width:100%;overflow:visible;animation:bob 2s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-8px)}}
+
+/* Slides */
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:5;opacity:0;pointer-events:none;transform:scale(0.95);transition:transform 0.8s cubic-bezier(.15,0,.15,1),opacity 0.8s}
+.slide.on,.slide.hold{transform:none}
+.slide.on{opacity:1}
+.slide.past{transform:scale(1.05);opacity:0}
+body.nx .slide{transition:opacity .6s}
+.rv{opacity:0;transform:translateY(30px);transition:all .5s}
+body.go .slide.on .rv{opacity:1;transform:none;filter:none;transition:all .7s cubic-bezier(.15,0,.15,1) var(--d,0s)}
+
+.ttl{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(36px,7.5vw,130px);line-height:1.05;text-align:center;color:#fff;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 20px var(--edge-glow), 0 0 40px rgba(255,42,42,0.2)}
+.ttl .rv{display:inline-block;transform:translateY(40px);filter:blur(8px)}
+
+.team{position:absolute;left:0;right:0;bottom:calc(8vh + env(safe-area-inset-bottom,0px));text-align:center}
+.team span{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(14px,1.8vw,28px);letter-spacing:3px;padding:.5em 2em;background:rgba(20,5,8,0.8);color:var(--edge);border:1px solid var(--edge);box-shadow:0 0 15px var(--edge-glow);clip-path:polygon(10px 0, 100% 0, fill, calc(100% - 10px) 100%, 0 100%)}
+
+.card{background:var(--card);border:1px solid rgba(255,42,42,0.3);border-left:4px solid var(--edge);box-shadow:0 10px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(255,42,42,0.05);backdrop-filter:blur(10px);padding:2.5vw 3.5vw;width:min(58vw,1000px);position:relative}
+.card::before{content:'';position:absolute;top:0;right:0;width:20px;height:20px;border-top:2px solid var(--edge);border-right:2px solid var(--edge)}
+.card h2{font-family:'Orbitron',sans-serif;font-size:clamp(22px,3vw,48px);margin:0 0 .5em;color:#fff;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:12px}
+.card h2::before{content:'//';color:var(--edge);font-size:0.8em}
+.card p{font-size:clamp(16px,1.6vw,26px);line-height:1.6;margin:0;font-weight:500;color:#d0d0e0}
+.card em{color:var(--edge);font-style:normal;font-weight:700;text-shadow:0 0 8px var(--edge-glow)}
+
+.sim{width:min(70vw,1000px);padding:1.8vw 2.2vw}
+.sim h2{margin-bottom:.3em}
+#cv{display:block;width:100%;height:44vh;border:1px solid rgba(255,42,42,0.4);background:#050508;box-shadow:inset 0 0 20px rgba(0,0,0,0.9)}
+.row{display:flex;gap:2vw;align-items:center;justify-content:space-between;margin-top:1.5vh;font-weight:700;font-size:clamp(12px,1.3vw,20px);color:var(--sub);text-transform:uppercase;letter-spacing:1px}
+.row input{width:16vw;min-width:110px;accent-color:var(--edge);vertical-align:middle}
+
+/* Last slide: Holographic Sci-Fi Grid */
+.grid-floor{position:absolute;left:-50%;bottom:-20vh;width:200%;height:60vh;background:linear-gradient(transparent 0%, rgba(255,42,42,0.15) 100%), linear-gradient(90deg, rgba(255,42,42,0.2) 1px, transparent 1px), linear-gradient(0deg, rgba(255,42,42,0.2) 1px, transparent 1px);background-size:100% 100%, 40px 40px, 40px 40px;transform:perspective(500px) rotateX(75deg);animation:grid-move 2s linear infinite}
+@keyframes grid-move{from{background-position:0 0, 0 0, 0 0}to{background-position:0 0, 0 0, 0 40px}}
+
+.bye{position:absolute;top:25vh;left:0;right:0;text-align:center;z-index:2}
+.bye .ttl{font-size:clamp(32px,5.5vw,90px)}
+.bye small{margin-top:2vh;font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(14px,1.8vw,28px);color:var(--edge);background:rgba(10,10,15,0.9);display:inline-block;padding:.4em 1.6em;border:1px solid var(--edge);box-shadow:0 0 20px var(--edge-glow);letter-spacing:2px}
+
+/* Futuristic HUD element */
+.hud-target{position:absolute;right:8vw;top:18vh;width:12vw;height:12vw;border:1px dashed rgba(255,42,42,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;animation:spin 20s linear infinite}
+.hud-target::after{content:'';width:60%;height:60%;border:1px solid var(--edge);border-radius:50%;opacity:0.6}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Wind effect (Streamlines overlay) */
+#wind{position:fixed;top:0;bottom:0;left:0;width:200vw;z-index:10;pointer-events:none;transform:translateX(-210vw);background:linear-gradient(90deg,rgba(0,0,0,0),rgba(255,42,42,0.15) 50%,rgba(0,0,0,0));overflow:hidden}
+#wind b{position:absolute;left:0;height:2px;background:linear-gradient(90deg, transparent, #ff2a2a, #ffffff);box-shadow:0 0 10px #ff2a2a;animation:rush linear infinite}
+@keyframes rush{from{transform:translateX(-60vw)}to{transform:translateX(220vw)}}
+
+.ui{position:fixed;right:20px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;gap:10px;align-items:center;font:700 13px 'Orbitron',sans-serif}
+.ui button,.ui span{background:rgba(15,15,20,0.9);color:var(--ink);border:1px solid rgba(255,42,42,0.4);padding:6px 16px;font:inherit;cursor:pointer;transition:all 0.2s}
+.ui button:hover{background:var(--edge);color:#fff;box-shadow:0 0 10px var(--edge-glow)}
+.ui span{cursor:default;color:var(--edge)}
+@media (max-width:700px){.card,.sim{width:86vw;padding:5vw}}
+</style></head>
+<body>
+<div id="stage">
+
+<!-- Background Grid -->
+<svg id="grid-bg" width="100%" height="100%"><defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#ff2a2a" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)" /></svg>
+
+<div class="hud-target"></div>
+
+<!-- Futuristic Supersonic Drone Jet (Replacing Airplane) -->
+<div id="plane">
+<svg viewBox="0 0 400 160">
+  <path d="M 380 80 L 260 40 L 120 50 L 20 20 L 40 80 L 20 140 L 120 110 L 260 120 Z" fill="#121218" stroke="#ff2a2a" stroke-width="3"/>
+  <path d="M 380 80 L 220 70 L 100 80 L 220 90 Z" fill="#1f1f28" stroke="#ff2a2a" stroke-width="1.5"/>
+  <line x1="260" y1="40" x2="220" y2="70" stroke="#ff2a2a" stroke-width="2"/>
+  <line x1="260" y1="120" x2="220" y2="90" stroke="#ff2a2a" stroke-width="2"/>
+  <!-- Thruster Glow -->
+  <polygon points="15,70 38,80 15,90 0,80" fill="#ff2a2a" filter="drop-shadow(0 0 8px #ff2a2a)"/>
+</svg>
+</div>
+
+<!-- Slide 1 -->
+<section class="slide">
+  <h1 class="ttl" id="t1" style="margin:0 0 4vh"></h1>
+  <div class="team rv" style="--d:1.8s"><span>FRICTIONLESS DUDES</span></div>
+</section>
+
+<!-- Slide 2 -->
+<section class="slide">
+  <div class="card rv" style="--d:.4s">
+    <h2>Cos’è la galleria del vento?</h2>
+    <p>La <em>galleria del vento</em> è un impianto fondamentale per la ricerca aerodinamica. Genera un flusso d’aria ad alta precisione con velocità regolabile attorno a un modello statico: veicoli, profili alari o strutture architettoniche.</p>
+    <p style="margin-top:1em">Questo sistema consente di analizzare e misurare i fenomeni fluido-dinamici complessi in un ambiente altamente controllato senza la necessità di test in volo o su strada.</p>
+  </div>
+</section>
+
+<!-- Slide 3 -->
+<section class="slide">
+  <div class="card rv" style="--d:.4s">
+    <h2>Evoluzione Storica</h2>
+    <p>Nel 1871, <em>Francis Wenham</em> progettò e costruì la prima galleria del vento della storia, introducendo la misurazione sistematica delle forze aerodinamiche.</p>
+    <p style="margin-top:1em">Nel 1901, i <em>fratelli Wright</em> svilupparono la propria galleria del vento di precisione per perfezionare la curvatura delle ali dei loro prototipi, ponendo le basi per il primo volo a motore guidato.</p>
+  </div>
+</section>
+
+<!-- Slide 4 -->
+<section class="slide">
+  <div class="card rv" style="--d:.4s">
+    <h2>Principi Aerodinamici</h2>
+    <p>Un sistema di ventilazione industriale forza l'aria all'interno della camera di prova. Sensori e bilance dinamometriche rilevano le forze chiave:</p>
+    <p style="margin-top:0.8em">• <em>Portanza (Lift):</em> Spinta verticale generata dal differenziale di pressione.<br>• <em>Resistenza (Drag):</em> Forza d'attrito opposta al moto.</p>
+    <p style="margin-top:0.8em">Il <em>Principio di Bernoulli</em> e le equazioni di Navier-Stokes regolano la relazione fondamentale tra velocità del flusso e pressione locale.</p>
+  </div>
+</section>
+
+<!-- Slide 5: Simulation -->
+<section class="slide">
+  <div class="card sim rv" style="--d:.4s">
+    <h2>Simulazione Aerodinamica</h2>
+    <canvas id="cv"></canvas>
+    <div class="row">
+      <label>Velocità Flusso <input id="spd" type="range" min=".4" max="2.4" step=".1" value="1.2"></label>
+      <span><b style="color:#00f0ff">■</b> Bassa pressione / Alta Vel. &nbsp;&nbsp; <b style="color:#ff2a2a">■</b> Alta Pressione</span>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 6 -->
+<section class="slide">
+  <div class="bye">
+    <h2 class="ttl" id="t6" style="margin:0"></h2>
+    <small class="rv" style="--d:1.2s">FRICTIONLESS DUDES</small>
+  </div>
+  <div class="grid-floor"></div>
+</section>
+
+<!-- Wind FX Overlay -->
+<div id="wind"></div>
+
+<!-- Navigation UI -->
+<div class="ui">
+  <button id="pv" aria-label="Indietro">◄ PREV</button>
+  <span id="cnt">01 / 06</span>
+  <button id="nx" aria-label="Avanti">NEXT ►</button>
+  <button id="fs" aria-label="Schermo intero">[ ⛶ ]</button>
+</div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const S=$$('.slide'),plane=$('#plane'),wd=$('#wind'),B=document.body;
+
+// Wind streaks effect
+wd.innerHTML=Array.from({length:40},()=>`<b style="top:${Math.random()*100}%;width:${15+Math.random()*35}vw;animation-duration:${.3+Math.random()*.5}s;animation-delay:-${Math.random()}s"></b>`).join('');
+
+// Letter-by-letter title renderer
+function ttl(el,lines,base){let k=0;el.innerHTML=lines.map(l=>[...l].map(c=>c===' '?'<span style="display:inline-block;width:.3em"></span>':`<span class="rv" style="--d:${(base+(k++)*.05).toFixed(2)}s"><i>${c}</i></span>`).join('')).join('<br>')}
+ttl($('#t1'),['La Galleria','del Vento'],.4);
+ttl($('#t6'),['Analisi','Completata'],.3);
+
+// State management
+let n=0,busy=1;
+function pos(i){S.forEach((s,k)=>{s.classList.remove('hold');s.classList.toggle('past',k<i)})}
+function apply(i,fade){const old=S[n];n=i;
+ if(fade){B.classList.add('nx');old.classList.add('hold')}
+ S.forEach((s,k)=>s.classList.toggle('on',k==i));
+ if(fade)setTimeout(()=>{pos(i);setTimeout(()=>B.classList.remove('nx'),60)},650);else pos(i);
+ B.dataset.s=i+1;$('#cnt').textContent=String(i+1).padStart(2,'0')+' / 06';
+ i==4?sim.start():sim.stop();}
+
+function windIn(cb){wd.style.transition='transform .7s cubic-bezier(.55,0,.45,1)';wd.style.transform='translateX(-50vw)';setTimeout(cb,750)}
+function windOut(cb){wd.style.transition='transform .7s cubic-bezier(.55,0,.45,1)';wd.style.transform='translateX(110vw)';setTimeout(()=>{wd.style.transition='none';wd.style.transform='translateX(-210vw)';cb&&cb()},750)}
+
+function next(){if(busy)return;if(n==5)return;
+ busy=1;const t=n+1,m=['slide','plane','slide','wind','slide'][n];
+ if(m=='slide'){apply(t);setTimeout(()=>busy=0,1000)}
+ if(m=='plane'){plane.classList.add('fly');setTimeout(()=>apply(t,1),1500);setTimeout(()=>{plane.classList.add('nt');plane.classList.remove('fly');void plane.offsetWidth;plane.classList.remove('nt');busy=0},2500)}
+ if(m=='wind'){windIn(()=>{apply(t,1);setTimeout(()=>windOut(()=>busy=0),300)})}}
+
+function prev(){if(busy||n==0)return;busy=1;apply(n-1,1);setTimeout(()=>busy=0,800)}
+
+// High-Tech Aerodynamic Simulation (Cylinder / Aerofoil Streamlines)
+const sim=(()=>{const cv=$('#cv'),g=cv.getContext('2d'),sp=$('#spd');let run=0,P=[],W,H,R;
+ const spawn=p=>{p.x=-4;p.y=Math.random()*H;p.a=0};
+ function init(){W=cv.width=cv.clientWidth;H=cv.height=cv.clientHeight;R=Math.min(W,H)*.18;P=Array.from({length:400},()=>({x:Math.random()*W,y:Math.random()*H,a:0}));g.fillStyle='#050508';g.fillRect(0,0,W,H)}
+ function frame(){if(!run)return;requestAnimationFrame(frame);const cx=W/2,cy=H/2,k=+sp.value*180*.016;
+  g.fillStyle='rgba(5,5,8,0.2)';g.fillRect(0,0,W,H);
+  
+  // Render Grid Lines on Canvas
+  g.strokeStyle='rgba(255,42,42,0.05)';g.lineWidth=1;
+  for(let x=0;x<W;x+=40){g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();}
+  for(let y=0;y<H;y+=40){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
+
+  g.lineWidth=2;
+  for(const p of P){const dx=p.x-cx,dy=p.y-cy,r2=dx*dx+dy*dy,q=R*R/(r2*r2||1),u=1-q*(dx*dx-dy*dy),v=-2*q*dx*dy,m=Math.hypot(u,v),nx=p.x+u*k,ny=p.y+v*k;
+   const hue = Math.max(0, Math.min(360, 180 - (m - 1) * 220));
+   g.strokeStyle=`hsl(${hue}, 100%, 55%)`;
+   g.beginPath();g.moveTo(p.x,p.y);g.lineTo(nx,ny);g.stroke();
+   p.x=nx;p.y=ny;if(++p.a>600||nx>W||r2<R*R*1.05)spawn(p)}
+  
+  // Model Body
+  g.beginPath();g.arc(cx,cy,R,0,7);g.fillStyle='#0a0a10';g.fill();g.lineWidth=3;g.strokeStyle='#ff2a2a';g.stroke();
+  g.fillStyle='#ffffff';g.font='700 '+Math.round(R*.28)+'px Orbitron,sans-serif';g.textAlign='center';g.fillText('MODEL',cx,cy+R*.1)}
+ return{start(){if(run)return;run=1;init();requestAnimationFrame(frame)},stop(){run=0}}})();
+
+// Controls
+$('.ui').addEventListener('click',e=>e.stopPropagation());
+$('#nx').onclick=next;$('#pv').onclick=prev;
+$('#fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
+$('#spd').addEventListener('click',e=>e.stopPropagation());
+$('#stage').addEventListener('click',next);
+addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();next()}else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key))prev();else if(e.key=='f')$('#fs').click()});
+
+// Initialization
+wd.style.transition='none';wd.style.transform='translateX(-50vw)';
+apply(0);
+setTimeout(()=>{windOut();setTimeout(()=>{B.classList.add('go');busy=0},500)},600);
+</script></body></html>

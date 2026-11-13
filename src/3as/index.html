@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hackathon AI e STEM · 3AS</title>
+<meta name="robots" content="noindex"><link rel="stylesheet" href="assets/fonts.css">
+<style>
+:root{--ink:#14162A;--paper:#F3EFE6;--card:#FFFDF8;--line:#E2DDD0;--mut:#5A5C70;--or:#E8501A;--or2:#FF5B1F;--bl:#2B47E0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.5 'Atkinson Hyperlegible',system-ui,sans-serif}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.eyebrow{font:700 12px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--or)}
+h1,h2,h3{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:800;letter-spacing:-.02em;margin:0}
+header{background:var(--ink);color:var(--paper);padding:56px 0 48px}
+header h1{font-size:clamp(40px,7vw,76px);line-height:1;margin:10px 0 14px}
+header h1 em{font-style:normal;color:var(--or2)}
+header p{max-width:720px;color:#C9C7D6;margin:0}
+.winner{margin-top:32px;display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;background:#1E2140;border-radius:18px;padding:18px 24px}
+.winner .k{font:700 12px 'JetBrains Mono',monospace;letter-spacing:.14em;color:#C9C7D6;text-transform:uppercase}
+.winner .n{font:800 30px/1.05 'Bricolage Grotesque',sans-serif}
+.winner .p{margin-left:auto;font:700 40px 'JetBrains Mono',monospace;color:var(--or2)}
+.winner .p small{font-size:16px;color:#C9C7D6}
+section{padding:44px 0 8px}
+h2{font-size:clamp(28px,4vw,40px);margin:6px 0 6px}
+.lead{color:var(--mut);margin:0 0 20px;max-width:760px}
+.tbl{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:16px}
+table{width:100%;border-collapse:collapse;min-width:620px}
+th{font:700 11px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);text-align:left;padding:12px 14px;border-bottom:2px solid var(--ink)}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.num{text-align:right;font-family:'JetBrains Mono',monospace} th.num{text-align:right}
+.pos{font:800 20px 'Bricolage Grotesque',sans-serif;width:56px} tr.top .pos{color:var(--or)}
+.tot{font-weight:700;font-size:19px}
+.mem{display:block;font-size:14px;color:var(--mut)}
+.bm{font-size:14px;color:var(--mut)}
+td a{text-decoration:none} td a:hover b{text-decoration:underline}
+.note{font-size:14px;color:var(--mut);margin:12px 2px 0}
+.cards{display:grid;gap:22px}
+.card{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1.25fr) minmax(0,.9fr);gap:0;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;scroll-margin-top:16px}
+.card.win{border:2px solid var(--or)}
+.shot{position:relative;display:block;background:#0B0C16;min-height:220px}
+.shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;transition:transform .3s}
+.shot:hover img{transform:scale(1.03)}
+.rank{position:absolute;left:14px;top:14px;background:var(--ink);color:var(--paper);font:800 20px 'Bricolage Grotesque',sans-serif;border-radius:12px;padding:4px 12px}
+.win .rank{background:var(--or2);color:var(--ink)}
+.body{padding:22px 24px}
+.body h3{font-size:28px;line-height:1.1;margin:8px 0 10px}
+.body p{margin:0 0 16px;color:#33354A}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.btn{display:inline-block;text-decoration:none;font-weight:700;font-size:15px;padding:9px 14px;border-radius:10px;background:#ECE7DB}
+.btn:hover{background:#E2DCCD}
+.btn.or{background:var(--ink);color:var(--paper)} .btn.or:hover{background:#262A50}
+.score{padding:22px 24px;border-left:1px solid var(--line);background:#FBF8F1}
+.big{font:700 40px/1 'JetBrains Mono',monospace} .big small{font-size:15px;color:var(--mut)}
+.split{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--mut);margin:8px 0 14px}
+.split i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px} .split .d{background:var(--or)} .split .s{background:var(--bl)}
+.cr{display:grid;grid-template-columns:118px 1fr 30px;align-items:center;gap:8px;font-size:13px;margin:5px 0}
+.cr i{font-style:normal;color:#9A9BAA;margin-left:4px;font-size:11px}
+.cr b{text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px}
+.tr{height:8px;border-radius:4px;background:#E7E2D6;overflow:hidden} .fi{height:100%;background:var(--bl);border-radius:4px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{font-size:12px;font-weight:700;padding:3px 8px;border-radius:8px} .tag.ok{background:#DDF3EC;color:#126A55} .tag.ko{background:#FBE1D8;color:#A2330E}
+footer{padding:40px 0 56px;color:var(--mut);font-size:14px}
+@media (max-width:960px){.card{grid-template-columns:1fr} .score{border-left:0;border-top:1px solid var(--line)} .shot{aspect-ratio:16/10;min-height:0}}
+@media (prefers-reduced-motion:reduce){.shot img{transition:none}}
+</style></head><body>
+<header><div class="wrap">
+  <div class="eyebrow">Corso AI e STEM · 3AS Liceo Scientifico · 3-4-5 novembre 2026</div>
+  <h1>Hackathon AI e STEM:<br><em>i progetti e i risultati</em></h1>
+  <p>Sette squadre, una mattina: ognuna ha costruito con l’IA una pagina web interattiva su un fenomeno scientifico e l’ha presentata in cinque minuti più domande. Qui ci sono tutte le consegne, da aprire e provare, e la classifica finale.</p>
+  <div class="winner"><div><div class="k">Vince</div><div class="n">Error404 · Memoria 3D</div></div><div class="p">39,7<small>/50</small></div></div>
+</div></header>
+
+<section><div class="wrap">
+  <div class="eyebrow">Risultati</div>
+  <h2>La classifica finale</h2>
+  <p class="lead">Ogni progetto è stato votato da 1 a 5 su cinque criteri dai due docenti e dalle altre squadre. Il totale va su 50: conta per il 60% il voto dei docenti e per il 40% quello delle squadre.</p>
+  <div class="tbl"><table>
+    <tr><th>Pos.</th><th>Squadra</th><th class="num">Docenti</th><th class="num">Squadre</th><th>Bonus / malus</th><th class="num">Totale</th></tr>
+    <tr class="top"><td class="pos">1°</td><td><a href="#s4"><b>Error404</b></a><span class="mem">Memoria 3D</span></td><td class="num">41,5</td><td class="num">37,1</td><td class="bm">—</td><td class="num tot">39,7</td></tr><tr class="top"><td class="pos">2°</td><td><a href="#s1"><b>Frictionless Dudes</b></a><span class="mem">Galleria del vento</span></td><td class="num">34,0</td><td class="num">32,3</td><td class="bm">+2 diario</td><td class="num tot">35,3</td></tr><tr class="top"><td class="pos">3°</td><td><a href="#s3"><b>Proxima Physis</b></a><span class="mem">Stellarator Alpha</span></td><td class="num">34,5</td><td class="num">32,3</td><td class="bm">—</td><td class="num tot">33,6</td></tr><tr class=""><td class="pos">4°</td><td><a href="#s2"><b>Gocce d’acqua</b></a><span class="mem">Galleria del vento · sezione alare</span></td><td class="num">36,5</td><td class="num">28,8</td><td class="bm">—</td><td class="num tot">33,4</td></tr><tr class=""><td class="pos">5°</td><td><a href="#s7"><b>Le Astronaute</b></a><span class="mem">Missione Afelio</span></td><td class="num">30,5</td><td class="num">27,7</td><td class="bm">+2 diario</td><td class="num tot">31,4</td></tr><tr class=""><td class="pos">6°</td><td><a href="#s6"><b>Bag</b></a><span class="mem">Nuclear Lab</span></td><td class="num">27,5</td><td class="num">24,0</td><td class="bm">−2 ritardo</td><td class="num tot">24,1</td></tr><tr class=""><td class="pos">7°</td><td><a href="#s5"><b>Thinking Space 2</b></a><span class="mem">Dentro il reattore</span></td><td class="num">24,5</td><td class="num">25,3</td><td class="bm">−2 ritardo</td><td class="num tot">22,8</td></tr>
+  </table></div>
+  <p class="note">Criteri e pesi: Scienza corretta ×3, Profondità ×2, Interattività ×2, Design ×1, Presentazione ×2. +2 a chi ha consegnato il diario dei prompt, −2 a chi ha consegnato in ritardo. 133 voti validi; i 4 voti dati alla propria squadra non contano. A parità decide la Scienza corretta.</p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">Le consegne</div>
+  <h2>I sette progetti</h2>
+  <p class="lead">In ordine di classifica. Cliccate l’anteprima o «Apri la pagina» per provare il progetto; le barre mostrano il voto medio per criterio, da 1 a 5.</p>
+  <div class="cards">
+<article class="card win" id="s4">
+  <a class="shot" href="progetti/4/pagina.html" target="_blank" rel="noopener"><img src="foto/4.jpg" alt="Anteprima della pagina «Memoria 3D» di Error404"><span class="rank">1°</span></a>
+  <div class="body">
+    <div class="eyebrow">Error404 · 4 studenti</div>
+    <h3>Memoria 3D</h3>
+    <p>Un cervello in 3D segue un ricordo dalla memoria a breve termine a quella a lungo termine, sinapsi comprese. In più, una pagina di giochi sulla memoria.</p>
+    <div class="links"><a class="btn or" href="progetti/4/pagina.html" target="_blank" rel="noopener">Apri la pagina ↗</a><a class="btn" href="progetti/4/slide.html" target="_blank" rel="noopener">Slide ↗</a><a class="btn" href="progetti/4/Giochi_sulla_memoria.html" target="_blank" rel="noopener">Giochi sulla memoria ↗</a></div>
+  </div>
+  <div class="score">
+    <div class="big">39,7<small>/50</small></div>
+    <div class="split"><span><i class="d"></i>docenti 41,5</span><span><i class="s"></i>squadre 37,1</span></div>
+    <div class="cr"><span>Scienza corretta<i>×3</i></span><div class="tr"><div class="fi" style="width:64%"></div></div><b>3,6</b></div><div class="cr"><span>Profondità<i>×2</i></span><div class="tr"><div class="fi" style="width:68%"></div></div><b>3,7</b></div><div class="cr"><span>Interattività<i>×2</i></span><div class="tr"><div class="fi" style="width:95%"></div></div><b>4,8</b></div><div class="cr"><span>Design<i>×1</i></span><div class="tr"><div class="fi" style="width:66%"></div></div><b>3,6</b></div><div class="cr"><span>Presentazione<i>×2</i></span><div class="tr"><div class="fi" style="width:79%"></div></div><b>4,2</b></div>
+    <div class="tags"></div>
+  </div>
+</article>
+<article class="card" id="s1">
+  <a class="shot" href="progetti/1/pagina.html" target="_blank" rel="noopener"><img src="foto/1.jpg" alt="Anteprima della pagina «Galleria del vento» di Frictionless Dudes"><span class="rank">2°</span></a>
+  <div class="body">
+    <div class="eyebrow">Frictionless Dudes · 3 studenti</div>
+    <h3>Galleria del vento</h3>
+    <p>Una galleria a circuito chiuso in cui inserire auto, bici e altri oggetti per confrontare resistenza, potenza ed energia. I coefficienti vengono da fonti pubbliche, citate in fondo.</p>
+    <div class="links"><a class="btn or" href="progetti/1/pagina.html" target="_blank" rel="noopener">Apri la pagina ↗</a><a class="btn" href="progetti/1/slide.html" target="_blank" rel="noopener">Slide ↗</a></div>
+  </div>
+  <div class="score">
+    <div class="big">35,3<small>/50</small></div>
+    <div class="split"><span><i class="d"></i>docenti 34,0</span><span><i class="s"></i>squadre 32,3</span></div>
+    <div class="cr"><span>Scienza corretta<i>×3</i></span><div class="tr"><div class="fi" style="width:65%"></div></div><b>3,6</b></div><div class="cr"><span>Profondità<i>×2</i></span><div class="tr"><div class="fi" style="width:52%"></div></div><b>3,1</b></div><div class="cr"><span>Interattività<i>×2</i></span><div class="tr"><div class="fi" style="width:47%"></div></div><b>2,9</b></div><div class="cr"><span>Design<i>×1</i></span><div class="tr"><div class="fi" style="width:59%"></div></div><b>3,4</b></div><div class="cr"><span>Presentazione<i>×2</i></span><div class="tr"><div class="fi" style="width:66%"></div></div><b>3,6</b></div>
+    <div class="tags"><span class="tag ok">+2 diario dei prompt</span></div>
+  </div>
+</article>
+<article class="card" id="s3">
+  <a class="shot" href="progetti/3/pagina.html" target="_blank" rel="noopener"><img src="foto/3.jpg" alt="Anteprima della pagina «Stellarator Alpha» di Proxima Physis"><span class="rank">3°</span></a>
+  <div class="body">
+    <div class="eyebrow">Proxima Physis · 3 studenti</div>
+    <h3>Stellarator Alpha</h3>
+    <p>Esploratore 3D dello stellarator di Proxima Fusion: componenti, vista esplosa, linee di campo magnetico e il percorso dal combustibile all’energia.</p>
+    <div class="links"><a class="btn or" href="progetti/3/pagina.html" target="_blank" rel="noopener">Apri la pagina ↗</a><a class="btn" href="progetti/3/slide.html" target="_blank" rel="noopener">Slide ↗</a></div>
+  </div>
+  <div class="score">
+    <div class="big">33,6<small>/50</small></div>
+    <div class="split"><span><i class="d"></i>docenti 34,5</span><span><i class="s"></i>squadre 32,3</span></div>
+    <div class="cr"><span>Scienza corretta<i>×3</i></span><div class="tr"><div class="fi" style="width:54%"></div></div><b>3,2</b></div><div class="cr"><span>Profondità<i>×2</i></span><div class="tr"><div class="fi" style="width:56%"></div></div><b>3,2</b></div><div class="cr"><span>Interattività<i>×2</i></span><div class="tr"><div class="fi" style="width:65%"></div></div><b>3,6</b></div><div class="cr"><span>Design<i>×1</i></span><div class="tr"><div class="fi" style="width:81%"></div></div><b>4,2</b></div><div class="cr"><span>Presentazione<i>×2</i></span><div class="tr"><div class="fi" style="width:52%"></div></div><b>3,1</b></div>
+    <div class="tags"></div>
+  </div>
+</article>
+<article class="card" id="s2">
+  <a class="shot" href="progetti/2/pagina.html" target="_blank" rel="noopener"><img src="foto/2.jpg" alt="Anteprima della pagina «Galleria del vento · sezione alare» di Gocce d’acqua"><span class="rank">4°</span></a>
+  <div class="body">
+    <div class="eyebrow">Gocce d’acqua · 3 studenti</div>
+    <h3>Galleria del vento · sezione alare</h3>
+    <p>Simulazione 2D dell’aria che scorre attorno a un’ala: il fumo mostra il flusso, portanza e resistenza si aggiornano mentre si cambiano profilo e velocità.</p>
+    <div class="links"><a class="btn or" href="progetti/2/pagina.html" target="_blank" rel="noopener">Apri la pagina ↗</a></div>
+  </div>
+  <div class="score">
+    <div class="big">33,4<small>/50</small></div>
+    <div class="split"><span><i class="d"></i>docenti 36,5</span><span><i class="s"></i>squadre 28,8</span></div>
+    <div class="cr"><span>Scienza corretta<i>×3</i></span><div class="tr"><div class="fi" style="width:62%"></div></div><b>3,5</b></div><div class="cr"><span>Profondità<i>×2</i></span><div class="tr"><div class="fi" style="width:58%"></div></div><b>3,3</b></div><div class="cr"><span>Interattività<i>×2</i></span><div class="tr"><div class="fi" style="width:66%"></div></div><b>3,6</b></div><div class="cr"><span>Design<i>×1</i></span><div class="tr"><div class="fi" style="width:47%"></div></div><b>2,9</b></div><div class="cr"><span>Presentazione<i>×2</i></span><div class="tr"><div class="fi" style="width:53%"></div></div><b>3,1</b></div>
+    <div class="tags"></div>
+  </div>
+</article>
+<article class="card" id="s7">
+  <a class="shot" href="progetti/7/pagina.html" target="_blank" rel="noopener"><img src="foto/7.jpg" alt="Anteprima della pagina «Missione Afelio» di Le Astronaute"><span class="rank">5°</span></a>
+  <div class="body">
+    <div class="eyebrow">Le Astronaute · 3 studenti</div>
+    <h3>Missione Afelio</h3>
+    <p>Un quiz di dieci domande sul sistema solare, con i corpi celesti in 3D da ruotare.</p>
+    <div class="links"><a class="btn or" href="progetti/7/pagina.html" target="_blank" rel="noopener">Apri la pagina ↗</a><a class="btn" href="progetti/7/slide.html" target="_blank" rel="noopener">Slide ↗</a></div>
+  </div>
+  <div class="score">
+    <div class="big">31,4<small>/50</small></div>
+    <div class="split"><span><i class="d"></i>docenti 30,5</span><span><i class="s"></i>squadre 27,7</span></div>
+    <div class="cr"><span>Scienza corretta<i>×3</i></span><div class="tr"><div class="fi" style="width:51%"></div></div><b>3,0</b></div><div class="cr"><span>Profondità<i>×2</i></span><div class="tr"><div class="fi" style="width:48%"></div></div><b>2,9</b></div><div class="cr"><span>Interattività<i>×2</i></span><div class="tr"><div class="fi" style="width:39%"></div></div><b>2,6</b></div><div class="cr"><span>Design<i>×1</i></span><div class="tr"><div class="fi" style="width:55%"></div></div><b>3,2</b></div><div class="cr"><span>Presentazione<i>×2</i></span><div class="tr"><div class="fi" style="width:50%"></div></div><b>3,0</b></div>
+    <div class="tags"><span class="tag ok">+2 diario dei prompt</span></div>
+  </div>
+</article>
+<article class="card" id="s6">
+  <a class="shot" href="progetti/6/pagina.html" target="_blank" rel="noopener"><img src="foto/6.jpg" alt="Anteprima della pagina «Nuclear Lab» di Bag"><span class="rank">6°</span></a>
+  <div class="body">
+    <div class="eyebrow">Bag · 3 studenti</div>
+    <h3>Nuclear Lab</h3>
+    <p>Un percorso in sette tappe su isotopi, fissione e fusione, PET, scintigrafia e intelligenza artificiale in ospedale, con giochi e quiz.</p>
+    <div class="links"><a class="btn or" href="progetti/6/pagina.html" target="_blank" rel="noopener">Apri la pagina ↗</a><a class="btn" href="progetti/6/slide.html" target="_blank" rel="noopener">Slide ↗</a></div>
+  </div>
+  <div class="score">
+    <div class="big">24,1<small>/50</small></div>
+    <div class="split"><span><i class="d"></i>docenti 27,5</span><span><i class="s"></i>squadre 24,0</span></div>
+    <div class="cr"><span>Scienza corretta<i>×3</i></span><div class="tr"><div class="fi" style="width:45%"></div></div><b>2,8</b></div><div class="cr"><span>Profondità<i>×2</i></span><div class="tr"><div class="fi" style="width:34%"></div></div><b>2,4</b></div><div class="cr"><span>Interattività<i>×2</i></span><div class="tr"><div class="fi" style="width:36%"></div></div><b>2,4</b></div><div class="cr"><span>Design<i>×1</i></span><div class="tr"><div class="fi" style="width:57%"></div></div><b>3,3</b></div><div class="cr"><span>Presentazione<i>×2</i></span><div class="tr"><div class="fi" style="width:36%"></div></div><b>2,4</b></div>
+    <div class="tags"><span class="tag ko">−2 consegna in ritardo</span></div>
+  </div>
+</article>
+<article class="card" id="s5">
+  <a class="shot" href="progetti/5/pagina.html" target="_blank" rel="noopener"><img src="foto/5.jpg" alt="Anteprima della pagina «Dentro il reattore» di Thinking Space 2"><span class="rank">7°</span></a>
+  <div class="body">
+    <div class="eyebrow">Thinking Space 2 · 3 studenti</div>
+    <h3>Dentro il reattore</h3>
+    <p>Simulazione immersiva dell’effetto Čerenkov: si regolano velocità delle particelle e indice di rifrazione e si vede cambiare l’angolo della luce blu.</p>
+    <div class="links"><a class="btn or" href="progetti/5/pagina.html" target="_blank" rel="noopener">Apri la pagina ↗</a><a class="btn" href="progetti/5/slide.pdf" target="_blank" rel="noopener">Slide (PDF) ↗</a></div>
+  </div>
+  <div class="score">
+    <div class="big">22,8<small>/50</small></div>
+    <div class="split"><span><i class="d"></i>docenti 24,5</span><span><i class="s"></i>squadre 25,3</span></div>
+    <div class="cr"><span>Scienza corretta<i>×3</i></span><div class="tr"><div class="fi" style="width:37%"></div></div><b>2,5</b></div><div class="cr"><span>Profondità<i>×2</i></span><div class="tr"><div class="fi" style="width:40%"></div></div><b>2,6</b></div><div class="cr"><span>Interattività<i>×2</i></span><div class="tr"><div class="fi" style="width:32%"></div></div><b>2,3</b></div><div class="cr"><span>Design<i>×1</i></span><div class="tr"><div class="fi" style="width:49%"></div></div><b>2,9</b></div><div class="cr"><span>Presentazione<i>×2</i></span><div class="tr"><div class="fi" style="width:34%"></div></div><b>2,4</b></div>
+    <div class="tags"><span class="tag ko">−2 consegna in ritardo</span></div>
+  </div>
+</article>
+  </div>
+</div></section>
+
+<footer><div class="wrap">Hackathon AI e STEM · 5 novembre 2026 · le pagine sono quelle consegnate dalle squadre, senza modifiche; dai PDF sono stati tolti solo i nomi degli studenti.</div></footer>
+</body></html>

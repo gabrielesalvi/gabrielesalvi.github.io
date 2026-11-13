@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Galleria del vento – sezione alare</title>
+<style>
+:root{
+  --bg:#f3f6fa; --card:#ffffff; --ink:#1c2733; --muted:#5b6b7c; --line:#d5dde7;
+  --accent:#2563eb; --lift:#16a34a; --drag:#dc2626; --warn:#d97706;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --math:"Cambria Math","STIX Two Math",Cambria,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+header{padding:16px 20px 2px;max-width:1500px;margin:0 auto}
+h1{font-size:1.4rem;margin:0 0 2px}
+header p{margin:0;color:var(--muted);font-size:.93rem;max-width:90ch}
+h2{font-size:1.02rem;margin:0 0 8px}
+h3{margin:0 0 6px;font-size:.95rem}
+.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,1fr);gap:14px;padding:12px 20px;max-width:1500px;margin:0 auto;align-items:start}
+.left,.right{display:flex;flex-direction:column;gap:14px;min-width:0}
+@media(max-width:980px){.layout{grid-template-columns:1fr;padding:10px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;font-size:.85rem;color:var(--muted)}
+button{font:inherit;font-size:.85rem;padding:5px 10px;border:1px solid var(--line);background:#f8fafc;border-radius:8px;cursor:pointer;color:var(--ink)}
+button:hover{background:#eef3f9;border-color:#b9c6d6}
+.sep{flex:1}
+#sim{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none;background:#fbfdff}
+@media(max-width:600px){#sim{aspect-ratio:1.35/1}}
+#cp{width:100%;height:240px;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:.78rem;color:var(--muted);margin-top:8px}
+.legend .grad{display:inline-block;width:90px;height:10px;border-radius:5px;vertical-align:middle;
+  background:linear-gradient(90deg,hsl(215 80% 45%),hsl(180 80% 42%),hsl(120 80% 40%),hsl(60 85% 45%),hsl(0 80% 48%))}
+.legend .sw{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:4px}
+.legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#dc2626;vertical-align:middle;margin-right:4px}
+.toggles{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:.85rem}
+.toggles label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.cap{font-size:.78rem;color:var(--muted);margin:6px 0 0}
+.grp{margin:12px 0 4px;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:2px}
+.grp:first-child{margin-top:0}
+.ctl{margin:7px 0}
+.ctl-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.86rem}
+.ctl-top label{flex:1}
+.val{display:flex;align-items:center;gap:4px}
+.val input{width:78px;padding:3px 5px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:.85rem;text-align:right}
+.unit{font-size:.75rem;color:var(--muted);min-width:34px}
+input[type=range]{width:100%;margin:2px 0 0;accent-color:var(--accent)}
+.ctl small{display:block;color:var(--muted);font-size:.73rem;line-height:1.3}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tile{border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:#fafcff;display:flex;flex-direction:column}
+.tl{font-size:.7rem;color:var(--muted)}
+.tv{font-family:var(--mono);font-size:.95rem;font-weight:600}
+.tv small{font-weight:400;color:var(--muted);font-size:.7rem;margin-left:3px}
+.tile.ok .tv{color:var(--lift)}
+.tile.bad{background:#fef2f2;border-color:#fca5a5}
+.tile.bad .tv{color:var(--drag)}
+.tile.wide{grid-column:1/-1}
+.wrap{max-width:1500px;margin:0 auto;padding:4px 20px 24px}
+@media(max-width:980px){.wrap{padding:4px 10px 20px}}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+@media(max-width:420px){.fgrid{grid-template-columns:1fr}}
+.fcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.fcard.intro{grid-column:1/-1;background:#eff6ff;border-color:#bfdbfe}
+.fcard p{margin:8px 0 0;font-size:.83rem;color:#3b4a5c}
+.fcard ul{margin:6px 0 0;padding-left:18px;font-size:.85rem}
+.eq{font-family:var(--math);font-size:1.18rem;background:#f8fafc;border-radius:8px;padding:8px 10px;overflow-x:auto;line-height:1.9}
+.eq i{font-style:italic}
+.num{font-family:var(--mono);font-size:.8rem;background:#fff7ed;border-left:3px solid #fb923c;padding:6px 8px;margin-top:6px;border-radius:4px;overflow-x:auto;line-height:1.55}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;font-size:.92em;line-height:1.25}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .25em}
+.fr>span:last-child{padding:0 .25em}
+footer{max-width:1500px;margin:0 auto;padding:0 20px 28px;color:var(--muted);font-size:.8rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Galleria del vento · sezione di un'ala</h1>
+  <p>Simulazione didattica 2D: l'aria scorre attorno a un profilo alare e il fumo ne mostra il percorso. Trascina il profilo con il mouse (o il dito) oppure usa i comandi a destra: dati e formule si aggiornano in tempo reale.</p>
+</header>
+
+<main class="layout">
+  <section class="left">
+    <div class="card">
+      <div class="toolbar">
+        <button id="btnPause">⏸ Pausa</button>
+        <button id="btnClear">Azzera fumo</button>
+        <button id="btnReset">Ripristina valori</button>
+        <span class="sep"></span>
+        <span>Profilo:</span>
+        <button data-preset="sym">Simmetrico</button>
+        <button data-preset="cam">Cambrato</button>
+        <button data-preset="thin">Sottile</button>
+      </div>
+      <canvas id="sim"></canvas>
+      <div class="legend">
+        <span>velocità dell'aria rispetto al vento: 0,2× <span class="grad"></span> 1,8×</span>
+        <span><i class="sw" style="background:#16a34a"></i>portanza L</span>
+        <span><i class="sw" style="background:#dc2626"></i>resistenza D (freccia ingrandita ×10)</span>
+        <span><i class="dot"></i>perno a c/4</span>
+      </div>
+      <div class="toggles">
+        <label><input type="checkbox" id="tg_forces" checked> forze L e D</label>
+        <label><input type="checkbox" id="tg_pressure"> frecce di pressione (Cp)</label>
+        <label><input type="checkbox" id="tg_color" checked> colora il fumo per velocità</label>
+        <label><input type="checkbox" id="tg_ref" checked> linee di riferimento e angolo α</label>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Distribuzione di pressione sul profilo</h2>
+      <canvas id="cp"></canvas>
+      <p class="cap">Cp = (p − p∞)/q misura quanto la pressione sul profilo supera (Cp &gt; 0) o è inferiore (Cp &lt; 0) a quella dell'aria indisturbata, in rapporto a q. L'asse è invertito: in alto c'è la depressione. La portanza L è proporzionale all'area colorata tra le due curve (sotto più pressione, sopra meno). Il grafico non mostra il distacco dello stallo.</p>
+    </div>
+  </section>
+
+  <aside class="right">
+    <div class="card"><h2>Variabili modificabili</h2><div id="controls"></div></div>
+    <div class="card"><h2>Dati in tempo reale</h2><div id="stats" class="stats"></div></div>
+  </aside>
+</main>
+
+<section class="wrap">
+  <h2>La matematica dietro l'esperimento</h2>
+  <p class="cap" style="margin:0 0 10px">Formule da biennio/terzo anno: bastano prodotti, potenze e un po' di trigonometria. In ogni scheda trovi la formula e poi i <b>tuoi numeri</b> inseriti al posto delle lettere.</p>
+  <div id="formulas" class="fgrid"></div>
+</section>
+<footer>
+  Nota: il modello trascura l'attrito dell'aria e la comprimibilità, e le pareti della camera di prova non disturbano il flusso. Lo stallo è simulato in modo semplificato (meno portanza, più resistenza, fumo turbolento sul dorso) a scopo illustrativo.
+</footer>
+
+<script>
+const $=s=>document.querySelector(s);
+const f=(x,d=2)=>{x=Number(x);if(!isFinite(x))return '–';if(Math.abs(x)<0.5*Math.pow(10,-d))x=0;
+  return x.toLocaleString('it-IT',{minimumFractionDigits:d,maximumFractionDigits:d});};
+
+/* ====================== STATO ====================== */
+const DEFAULTS={alpha:6,U:30,rho:1.225,mu:1.81,chord:1.0,eps:0.09,kap:0.04,alphaS:15,n:20,anim:1};
+const S=Object.assign({},DEFAULTS);
+const T={pause:false,forces:true,pressure:false,colorSpeed:true,ref:true};
+const PRESETS={sym:{eps:0.09,kap:0},cam:{eps:0.09,kap:0.05},thin:{eps:0.03,kap:0.02}};
+
+/*==PHYS==*/
+/* ====================== FISICA ======================
+   Piano ζ: cerchio di centro ζ0 = −ε + iκ e raggio R che passa per ζ = b = 1.
+   Trasformazione di Joukowski  z = ζ + b²/ζ  →  profilo nel piano z.
+   Flusso nel piano ζ: corrente uniforme + doppietto + vortice (circolazione di Kutta).
+   Il piano fisico "p" è il piano z ruotato di −α' attorno al perno (c/4):
+   in p il vento è orizzontale e il profilo è inclinato.                         */
+const DEG=Math.PI/180, NN=720, A_SOUND=340.3;
+const G={zx:new Float64Array(NN),zy:new Float64Array(NN),th:new Float64Array(NN),
+  bpx:new Float64Array(NN),bpy:new Float64Array(NN),xc:new Float64Array(NN),cp:new Float64Array(NN)};
+let VX=0,VY=0,INS=false;
+
+function recompute(){
+  const eps=S.eps,kap=S.kap;
+  const R=Math.hypot(1+eps,kap),beta=Math.asin(kap/R);
+  const zx=G.zx,zy=G.zy,th=G.th;
+  for(let k=0;k<NN;k++){
+    const t=-beta+(k+0.5)/NN*2*Math.PI;th[k]=t;
+    const zr=-eps+R*Math.cos(t),zi=kap+R*Math.sin(t),m2=zr*zr+zi*zi;
+    zx[k]=zr+zr/m2;zy[k]=zi-zi/m2;
+  }
+  // bordo d'attacco = punto più lontano dal bordo d'uscita (2,0)
+  let kLE=0,dmax=-1;
+  for(let k=0;k<NN;k++){const d=(zx[k]-2)*(zx[k]-2)+zy[k]*zy[k];if(d>dmax){dmax=d;kLE=k}}
+  const xLE=zx[kLE],yLE=zy[kLE],chordZ=Math.sqrt(dmax);
+  const gamma=Math.atan2(-yLE,2-xLE);               // inclinazione della corda nel piano z
+  const xp=xLE+0.25*(2-xLE),yp=yLE-0.25*yLE;        // perno a c/4
+  const aZ=S.alpha*DEG+gamma,ca=Math.cos(aZ),sa=Math.sin(aZ);
+  const cg=Math.cos(gamma),sg=Math.sin(gamma);
+  const NBIN=60,up=new Float64Array(NBIN).fill(-1e9),lo=new Float64Array(NBIN).fill(1e9);
+  const g2=2*Math.sin(aZ+beta);                      // Γ/(2πR) con U = 1
+  let cpMin=1e9;
+  for(let k=0;k<NN;k++){
+    const dx=zx[k]-xp,dy=zy[k]-yp;
+    G.bpx[k]=dx*ca+dy*sa;G.bpy[k]=-dx*sa+dy*ca;
+    const ex=zx[k]-xLE,ey=zy[k]-yLE;
+    const xc=(ex*cg+ey*sg)/chordZ,yc=(-ex*sg+ey*cg)/chordZ;
+    G.xc[k]=xc;
+    const b=Math.min(NBIN-1,Math.max(0,Math.floor(xc*NBIN)));
+    if(k<kLE){if(yc>up[b])up[b]=yc}else{if(yc<lo[b])lo[b]=yc}
+    // Cp sulla superficie del cilindro (|dW/dζ| / |dz/dζ|)
+    const t=th[k],c1=Math.cos(t),s1=Math.sin(t);
+    const dWr=ca-Math.cos(aZ-2*t)+g2*s1,dWi=-sa-Math.sin(aZ-2*t)+g2*c1;
+    const zr=-eps+R*c1,zi=kap+R*s1,m2=zr*zr+zi*zi,m4=m2*m2;
+    const dzr=1-(zr*zr-zi*zi)/m4,dzi=2*zr*zi/m4;
+    const V2=(dWr*dWr+dWi*dWi)/(dzr*dzr+dzi*dzi);
+    G.cp[k]=1-V2;if(G.cp[k]<cpMin)cpMin=G.cp[k];
+  }
+  let tc=0,fc=0;
+  for(let b=0;b<NBIN;b++)if(up[b]>-1e8&&lo[b]<1e8){tc=Math.max(tc,up[b]-lo[b]);fc=Math.max(fc,Math.abs((up[b]+lo[b])/2));}
+  // coefficienti
+  const Clp=8*Math.PI*R*Math.sin(aZ+beta)/chordZ;
+  const aAbs=Math.abs(S.alpha),over=Math.max(0,aAbs-S.alphaS);
+  const fs=over>0?Math.max(0.5,1-0.07*over):1;
+  const Cl=Clp*fs;
+  const Cd0=0.005+0.05*tc;
+  const Cd=Cd0+0.01*Cl*Cl+1.5*over*DEG;
+  Object.assign(G,{R,R2:R*R,beta,gamma,chordZ,kLE,xLE,yLE,xp,yp,aZ,ca,sa,cg,sg,
+    z0r:-eps,z0i:kap,g2R:R*g2,Clp,Cl,Cd,Cd0,fs,over,tc,fc,cpMin,
+    alphaL0:-(beta+gamma)/DEG,
+    stall:Math.min(1,over/6),stalled:over>0,sgn:Math.sin(aZ+beta)>=0?1:-1,
+    leX:G.bpx[kLE],leY:G.bpy[kLE],
+    teX:(2-xp)*ca+(0-yp)*sa,teY:-(2-xp)*sa+(0-yp)*ca});
+}
+
+const sm=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
+
+/* velocità normalizzata V/U nel piano fisico p; imposta VX, VY, INS */
+function velocity(px,py,t){
+  const ca=G.ca,sa=G.sa;
+  const zx=G.xp+px*ca-py*sa,zy=G.yp+px*sa+py*ca;
+  // inversione di Joukowski: ζ = (z ± √(z²−4))/2, si sceglie la radice esterna al cerchio
+  const wr=zx*zx-zy*zy-4,wi=2*zx*zy;
+  const m=Math.sqrt(wr*wr+wi*wi);
+  const sr=Math.sqrt(Math.max(0,(m+wr)*0.5));
+  let si=Math.sqrt(Math.max(0,(m-wr)*0.5));if(wi<0)si=-si;
+  const z1r=(zx+sr)*0.5,z1i=(zy+si)*0.5,z2r=(zx-sr)*0.5,z2i=(zy-si)*0.5;
+  const d1r=z1r-G.z0r,d1i=z1i-G.z0i,d2r=z2r-G.z0r,d2i=z2i-G.z0i;
+  const r21=d1r*d1r+d1i*d1i,r22=d2r*d2r+d2i*d2i;
+  let zr,zi,dr,di,r2;
+  if(r21>=r22){zr=z1r;zi=z1i;dr=d1r;di=d1i;r2=r21}else{zr=z2r;zi=z2i;dr=d2r;di=d2i;r2=r22}
+  if(r2<G.R2*0.998){INS=true;VX=0;VY=0;return}
+  INS=false;
+  // dW/dζ = e^{-iα'} − R² e^{iα'}/(ζ−ζ0)² + i(Γ/2π)/(ζ−ζ0)
+  const d2r_=dr*dr-di*di,d2i_=2*dr*di,r4=r2*r2;
+  const qr=d2r_/r4,qi=-d2i_/r4;
+  const dWr=ca-G.R2*(ca*qr-sa*qi)+G.g2R*di/r2;
+  const dWi=-sa-G.R2*(ca*qi+sa*qr)+G.g2R*dr/r2;
+  // dz/dζ = 1 − 1/ζ²
+  const zz2=zr*zr+zi*zi,zz4=zz2*zz2;
+  const dzr=1-(zr*zr-zi*zi)/zz4,dzi=2*zr*zi/zz4;
+  const den=dzr*dzr+dzi*dzi;
+  let u=1,v=0;
+  if(den>1e-12){
+    u=(dWr*dzr+dWi*dzi)/den;          // u − i v = (dW/dζ)/(dz/dζ)
+    v=-(dWi*dzr-dWr*dzi)/den;
+    const mg=u*u+v*v;if(mg>12.25){const s=3.5/Math.sqrt(mg);u*=s;v*=s}
+  }
+  let vx=u*ca+v*sa,vy=-u*sa+v*ca;     // ritorno nel piano p (vento orizzontale)
+  if(G.stall>0){                      // zona di flusso separato sul dorso (modello illustrativo)
+    const ex=zx-G.xLE,ey=zy-G.yLE;
+    const xc=(ex*G.cg+ey*G.sg)/G.chordZ,yc=(-ex*G.sg+ey*G.cg)/G.chordZ;
+    if(xc>0.25){
+      const ys=G.sgn*yc;
+      const th=0.08+0.22*Math.min(xc-0.25,1.2),y0=0.03+0.5*th;
+      const w=sm(0.25,0.5,xc)*Math.exp(-((ys-y0)/th)*((ys-y0)/th));
+      if(w>0.001){
+        const A=G.stall*0.5*w;
+        const nx=Math.sin(7*px+4*py-9*t)+0.6*Math.sin(13*py-5*t+2*px);
+        const ny=Math.cos(6*px-5*py-8*t)+0.6*Math.cos(11*px+3*t);
+        const sl=1-0.55*G.stall*w;
+        vx=vx*sl+A*nx;vy=vy*sl+A*ny;
+      }
+    }
+  }
+  VX=vx;VY=vy;
+}
+/*==ENDPHYS==*/
+
+/* ====================== VISTA ====================== */
+const cv=$('#sim'),ctx=cv.getContext('2d');
+const cpCv=$('#cp'),cpCtx=cpCv.getContext('2d');
+const V={W:0,H:0,s:1,x0:0,y0:0,xmin:-6,xmax:10,dpr:1};
+const WALL=3.3;
+function resize(){
+  const r=cv.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  V.W=r.width;V.H=r.height;V.dpr=dpr;
+  cv.width=Math.round(V.W*dpr);cv.height=Math.round(V.H*dpr);
+  V.s=V.H/8;V.x0=V.W*0.36;V.y0=V.H/2;
+  V.xmin=-V.x0/V.s;V.xmax=(V.W-V.x0)/V.s;
+}
+const sx=x=>V.x0+x*V.s,sy=y=>V.y0-y*V.s;
+const rakeX=()=>V.xmin+0.45;
+
+/* ====================== FUMO ====================== */
+const SPACING=0.07;
+let streaks=[],emitAcc=0,tt=0;
+function rebuildStreaks(){
+  streaks=[];const N=Math.round(S.n),ym=2.9;
+  for(let i=0;i<N;i++)streaks.push({y0:-ym+(i+0.5)*(2*ym/N),x:[],y:[],a:[],s:[]});
+  emitAcc=0;
+}
+function step(dt){
+  const usim=Math.min(9,0.1*S.U*S.anim);
+  const sp=usim*dt;
+  emitAcc+=sp;
+  const nEm=Math.floor(emitAcc/SPACING),total=emitAcc,xr=rakeX();
+  const nsub=Math.max(1,Math.ceil(sp/0.12)),hs=sp/nsub,dts=dt;
+  const xEnd=V.xmax+0.4;
+  for(const st of streaks){
+    const X=st.x,Y=st.y,A=st.a,P=st.s;
+    let j=0;
+    for(let i=0;i<X.length;i++){
+      let x=X[i],y=Y[i],alive=true,spd=P[i];
+      for(let q=0;q<nsub;q++){
+        velocity(x,y,tt);
+        if(INS){alive=false;break}
+        const v1x=VX,v1y=VY;
+        velocity(x+0.5*hs*v1x,y+0.5*hs*v1y,tt);
+        if(INS){x+=hs*v1x;y+=hs*v1y;spd=Math.hypot(v1x,v1y);continue}
+        x+=hs*VX;y+=hs*VY;spd=Math.hypot(VX,VY);
+      }
+      if(!alive)continue;
+      const age=A[i]+dts;
+      if(x>xEnd||age>16||y>WALL||y<-WALL)continue;
+      X[j]=x;Y[j]=y;A[j]=age;P[j]=spd;j++;
+    }
+    X.length=Y.length=A.length=P.length=j;
+    for(let e=0;e<nEm;e++){
+      X.push(xr+total-(e+1)*SPACING);Y.push(st.y0);A.push(0);P.push(1);
+    }
+  }
+  emitAcc-=nEm*SPACING;
+}
+function warm(n){for(let i=0;i<n;i++){tt+=(1/30)*S.anim;step(1/30)}}
+
+/* ====================== DISEGNO ====================== */
+function txt(s,x,y,o={}){
+  const {color='#1c2733',size=12,align='left',bold=false,halo=true}=o;
+  ctx.font=(bold?'600 ':'')+size+'px system-ui,sans-serif';
+  ctx.textAlign=align;ctx.textBaseline='middle';
+  if(halo){ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.92)';ctx.lineJoin='round';ctx.strokeText(s,x,y)}
+  ctx.fillStyle=color;ctx.fillText(s,x,y);
+}
+function arrow(x1,y1,x2,y2,color,w=2.5,head=9){
+  ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=w;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const a=Math.atan2(y2-y1,x2-x1);
+  ctx.beginPath();ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-head*Math.cos(a-0.42),y2-head*Math.sin(a-0.42));
+  ctx.lineTo(x2-head*Math.cos(a+0.42),y2-head*Math.sin(a+0.42));
+  ctx.closePath();ctx.fill();
+}
+function pill(x,y,w,h,fill){
+  ctx.fillStyle=fill;ctx.beginPath();
+  if(ctx.roundRect)ctx.roundRect(x,y,w,h,h/2);else ctx.rect(x,y,w,h);
+  ctx.fill();
+}
+const NB=8,NA=3,ALPHA=[0.95,0.7,0.45];
+function drawSmoke(){
+  const paths=[];for(let i=0;i<NB*NA;i++)paths.push(new Path2D());
+  const xr=rakeX(),span=(V.xmax+0.4)-xr;
+  for(const st of streaks){
+    const X=st.x,Y=st.y,P=st.s,n=X.length;
+    for(let i=1;i<n;i++){
+      const dx=X[i]-X[i-1],dy=Y[i]-Y[i-1];
+      if(dx*dx+dy*dy>0.36)continue;
+      const b=T.colorSpeed?Math.min(NB-1,Math.max(0,Math.floor((P[i]-0.2)/1.6*NB))):0;
+      let a=Math.floor((X[i]-xr)/span*NA);a=a<0?0:(a>=NA?NA-1:a);
+      const p=paths[b*NA+a];
+      p.moveTo(sx(X[i-1]),sy(Y[i-1]));p.lineTo(sx(X[i]),sy(Y[i]));
+    }
+  }
+  ctx.lineCap='round';ctx.lineWidth=2;
+  for(let b=0;b<NB;b++)for(let a=0;a<NA;a++){
+    ctx.strokeStyle=T.colorSpeed?`hsl(${215*(1-b/(NB-1))} 80% 44%)`:'#3b4a5f';
+    ctx.globalAlpha=ALPHA[a];ctx.stroke(paths[b*NA+a]);
+  }
+  ctx.globalAlpha=1;
+}
+function drawWalls(){
+  const hTop=sy(WALL),hBot=sy(-WALL);
+  const bands=[[0,hTop],[hBot,V.H]];
+  for(const [y1,y2] of bands){
+    ctx.fillStyle='#e4e9f1';ctx.fillRect(0,y1,V.W,y2-y1);
+    ctx.save();ctx.beginPath();ctx.rect(0,y1,V.W,y2-y1);ctx.clip();
+    ctx.strokeStyle='#b6c2d3';ctx.lineWidth=1;ctx.beginPath();
+    for(let x=-V.H;x<V.W+V.H;x+=10){ctx.moveTo(x,y2);ctx.lineTo(x+(y2-y1),y1)}
+    ctx.stroke();ctx.restore();
+  }
+  ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.beginPath();
+  ctx.moveTo(0,hTop);ctx.lineTo(V.W,hTop);ctx.moveTo(0,hBot);ctx.lineTo(V.W,hBot);ctx.stroke();
+}
+function drawGrid(){
+  ctx.strokeStyle='#eef2f7';ctx.lineWidth=1;ctx.beginPath();
+  for(let x=Math.ceil(V.xmin);x<=V.xmax;x++){ctx.moveTo(sx(x),sy(WALL));ctx.lineTo(sx(x),sy(-WALL))}
+  for(let y=-3;y<=3;y++){ctx.moveTo(0,sy(y));ctx.lineTo(V.W,sy(y))}
+  ctx.stroke();
+}
+function draw(){
+  ctx.setTransform(V.dpr,0,0,V.dpr,0,0);
+  ctx.fillStyle='#fbfdff';ctx.fillRect(0,0,V.W,V.H);
+  drawGrid();drawWalls();
+  // pettine del fumo
+  const xr=sx(rakeX());
+  ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();
+  ctx.moveTo(xr,sy(WALL));ctx.lineTo(xr,sy(-WALL));ctx.stroke();
+  ctx.lineWidth=2;ctx.beginPath();
+  for(const st of streaks){ctx.moveTo(xr,sy(st.y0));ctx.lineTo(xr+8,sy(st.y0))}
+  ctx.stroke();
+  drawSmoke();
+
+  // profilo
+  ctx.beginPath();
+  for(let k=0;k<NN;k++){const X=sx(G.bpx[k]),Y=sy(G.bpy[k]);k?ctx.lineTo(X,Y):ctx.moveTo(X,Y)}
+  ctx.closePath();
+  ctx.fillStyle='#e8eef6';ctx.fill();
+  ctx.strokeStyle='#1c2733';ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke();
+
+  // frecce di pressione
+  if(T.pressure){
+    for(let k=8;k<NN-8;k+=14){
+      const tx=G.bpx[k+1]-G.bpx[k-1],ty=G.bpy[k+1]-G.bpy[k-1],tl=Math.hypot(tx,ty)||1;
+      const nx=ty/tl,ny=-tx/tl,cp=G.cp[k];
+      const len=Math.min(1.5,0.2*Math.abs(cp)+0.06);
+      const x0=G.bpx[k],y0=G.bpy[k];
+      if(cp<0)arrow(sx(x0),sy(y0),sx(x0+nx*len),sy(y0+ny*len),'rgba(37,99,235,.85)',1.6,6);
+      else arrow(sx(x0+nx*len),sy(y0+ny*len),sx(x0),sy(y0),'rgba(220,38,38,.85)',1.6,6);
+    }
+  }
+
+  // riferimenti
+  const pvx=sx(0),pvy=sy(0);
+  if(T.ref){
+    ctx.setLineDash([6,5]);ctx.lineWidth=1.3;
+    ctx.strokeStyle='#64748b';
+    ctx.beginPath();ctx.moveTo(sx(-3.2),pvy);ctx.lineTo(sx(5.4),pvy);ctx.stroke();           // direzione del vento
+    const ux=G.teX-G.leX,uy=G.teY-G.leY,ul=Math.hypot(ux,uy);
+    ctx.strokeStyle='#0f172a';
+    ctx.beginPath();ctx.moveTo(sx(G.leX-0.7*ux/ul),sy(G.leY-0.7*uy/ul));
+    ctx.lineTo(sx(G.teX+0.7*ux/ul),sy(G.teY+0.7*uy/ul));ctx.stroke();                         // corda
+    ctx.setLineDash([]);
+    // arco α
+    const a=S.alpha*DEG,r=1.45;
+    ctx.strokeStyle='#ea580c';ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<=24;i++){const ang=Math.PI-a*i/24;const X=sx(r*Math.cos(ang)),Y=sy(r*Math.sin(ang));i?ctx.lineTo(X,Y):ctx.moveTo(X,Y)}
+    ctx.stroke();
+    const am=Math.PI-a/2;
+    txt('α = '+f(S.alpha,1)+'°',sx(2.0*Math.cos(am))-6,sy(2.0*Math.sin(am))+(S.alpha>=0?-8:8),{color:'#c2410c',bold:true,align:'right'});
+    txt('bordo d\'attacco',sx(G.leX)-8,sy(G.leY)+(S.alpha>=0?-16:16),{size:11,color:'#475569',align:'right'});
+    txt('bordo d\'uscita',sx(G.teX)+8,sy(G.teY)+(S.alpha>=0?16:-16),{size:11,color:'#475569'});
+  }
+  // perno
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(pvx,pvy,6.5,0,7);ctx.fill();
+  ctx.fillStyle='#dc2626';ctx.beginPath();ctx.arc(pvx,pvy,4.2,0,7);ctx.fill();
+  txt('c/4',pvx+9,pvy+14,{size:11,color:'#b91c1c',bold:true});
+
+  // forze
+  if(T.forces){
+    const Lu=Math.max(-3.2,Math.min(3.2,G.Cl*1.0));
+    if(Math.abs(Lu)>0.03){
+      arrow(pvx,pvy,pvx,pvy-Lu*V.s,'#16a34a',3.4,11);
+      txt('L = '+f(D.L,1)+' N',pvx+8,pvy-Lu*V.s+(Lu>=0?-8:10),{color:'#15803d',bold:true});
+    }
+    const Du=Math.min(2.8,G.Cd*10);
+    arrow(pvx,pvy,pvx+Du*V.s,pvy,'#dc2626',3.4,11);
+    txt('D = '+f(D.Dr,2)+' N',pvx+Du*V.s+8,pvy+(Lu>=0?14:-14),{color:'#b91c1c',bold:true});
+  }
+
+  // HUD nelle pareti
+  const bandH=V.H/2-WALL*V.s;
+  const hy=Math.max(10,bandH/2);
+  txt('→  vento  v = '+f(S.U,1)+' m/s',10,hy,{bold:true,color:'#0f172a',halo:false});
+  const label=G.stalled?'STALLO · flusso separato sul dorso':'flusso aderente';
+  ctx.font='600 12px system-ui,sans-serif';
+  const tw=ctx.measureText(label).width+22;
+  pill(V.W-tw-8,hy-10,tw,20,G.stalled?'#dc2626':'#16a34a');
+  ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,V.W-tw/2-8,hy);
+  txt('pettine del fumo',sx(rakeX())+6,V.H-hy,{size:11,color:'#334155',halo:false});
+  txt('trascina il profilo per variare α',V.W-8,V.H-hy,{size:11,color:'#334155',align:'right',halo:false});
+}
+
+/* ---- grafico Cp ---- */
+function drawCp(){
+  const r=cpCv.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const pw=Math.round(r.width*dpr),ph=Math.round(r.height*dpr);
+  if(cpCv.width!==pw||cpCv.height!==ph){cpCv.width=pw;cpCv.height=ph}
+  const g=cpCtx;g.setTransform(dpr,0,0,dpr,0,0);
+  const W=r.width,H=r.height,l=44,rr=12,t=14,b=30;
+  g.clearRect(0,0,W,H);
+  const ymin=Math.max(-8,Math.min(-1.5,Math.floor(G.cpMin*1.1))),ymax=1.5;
+  const X=x=>l+x*(W-l-rr),Y=c=>t+(c-ymin)/(ymax-ymin)*(H-t-b);
+  g.font='11px system-ui,sans-serif';g.textBaseline='middle';
+  // griglia e assi
+  const tick=(ymax-ymin)>7?2:1;
+  g.strokeStyle='#e5eaf1';g.lineWidth=1;g.fillStyle='#5b6b7c';g.textAlign='right';
+  for(let c=Math.ceil(ymin/tick)*tick;c<=ymax;c+=tick){g.beginPath();g.moveTo(l,Y(c));g.lineTo(W-rr,Y(c));g.stroke();g.fillText(String(c),l-6,Y(c))}
+  g.textAlign='center';
+  for(let x=0;x<=1.001;x+=0.25){g.beginPath();g.moveTo(X(x),t);g.lineTo(X(x),H-b);g.stroke();g.fillText(f(x,2),X(x),H-b+12)}
+  g.fillStyle='#334155';g.fillText('x/c (dal bordo d\'attacco al bordo d\'uscita)',(l+W-rr)/2,H-6);
+  g.save();g.translate(11,(t+H-b)/2);g.rotate(-Math.PI/2);g.fillText('Cp (asse invertito)',0,0);g.restore();
+  g.strokeStyle='#64748b';g.setLineDash([5,4]);g.beginPath();g.moveTo(l,Y(0));g.lineTo(W-rr,Y(0));g.stroke();g.setLineDash([]);
+  // area tra le curve
+  const kLE=G.kLE;
+  g.save();g.beginPath();g.rect(l,t,W-l-rr,H-t-b);g.clip();
+  g.beginPath();
+  for(let k=0;k<NN;k++){const px=X(G.xc[k]),py=Y(G.cp[k]);k?g.lineTo(px,py):g.moveTo(px,py)}
+  g.closePath();g.fillStyle='rgba(34,197,94,.18)';g.fill();
+  const line=(a,bb,col)=>{g.beginPath();for(let k=a;k<bb;k++){const px=X(G.xc[k]),py=Y(G.cp[k]);k===a?g.moveTo(px,py):g.lineTo(px,py)}g.strokeStyle=col;g.lineWidth=2;g.stroke()};
+  line(0,kLE,'#2563eb');line(kLE,NN,'#ea580c');
+  g.restore();
+  if(G.cpMin<ymin){g.fillStyle='#b45309';g.textAlign='left';g.fillText('picco di depressione oltre il bordo del grafico: Cp min = '+f(G.cpMin,1),l+8,t+8)}
+  // legenda
+  g.textAlign='left';
+  g.fillStyle='#2563eb';g.fillRect(W-rr-190,t+4,16,3);g.fillStyle='#334155';g.fillText('lato superiore (dorso se α>0)',W-rr-170,t+6);
+  g.fillStyle='#ea580c';g.fillRect(W-rr-190,t+20,16,3);g.fillStyle='#334155';g.fillText('lato inferiore (ventre se α>0)',W-rr-170,t+22);
+  g.fillStyle='#16a34a';g.fillText('Cp = (p − p∞) / q',l+8,H-b-10);
+}
+
+/* ====================== CONTROLLI ====================== */
+const CONTROLS=[
+  {group:'Flusso d\'aria'},
+  {k:'alpha',label:'Angolo d\'attacco α',min:-25,max:25,step:0.1,dec:1,unit:'°',hint:'Angolo tra la corda del profilo e la direzione del vento. Positivo = muso verso l\'alto.'},
+  {k:'U',label:'Velocità del vento v',min:1,max:100,step:0.5,dec:1,unit:'m/s',hint:'Se raddoppia, portanza e resistenza diventano 4 volte più grandi (L ∝ v²).'},
+  {k:'rho',label:'Densità dell\'aria ρ',min:0.4,max:1.5,step:0.005,dec:3,unit:'kg/m³',hint:'1,225 a livello del mare; diminuisce con la quota.'},
+  {k:'mu',label:'Viscosità dinamica μ',min:1,max:2.6,step:0.01,dec:2,unit:'×10⁻⁵ Pa·s',hint:'Entra solo nel numero di Reynolds.'},
+  {group:'Profilo'},
+  {k:'chord',label:'Corda c',min:0.1,max:3,step:0.05,dec:2,unit:'m',hint:'Lunghezza del profilo (per metro di apertura alare).'},
+  {k:'eps',label:'Spessore del profilo (ε)',min:0.01,max:0.25,step:0.005,dec:3,unit:'',hint:'Più alto = profilo più «grasso». Il valore reale t/c è nei dati.'},
+  {k:'kap',label:'Curvatura del profilo (κ)',min:-0.15,max:0.15,step:0.005,dec:3,unit:'',hint:"Positiva = dorso più bombato: c'è portanza anche con α = 0."},
+  {k:'alphaS',label:'Angolo di stallo αₛ',min:8,max:22,step:0.5,dec:1,unit:'°',hint:'Oltre questo angolo il flusso si stacca dal dorso: stallo.'},
+  {group:'Fumo e animazione'},
+  {k:'n',label:'Numero di filetti di fumo',min:6,max:40,step:1,dec:0,unit:'',hint:''},
+  {k:'anim',label:'Velocità dell\'animazione',min:0.1,max:2,step:0.05,dec:2,unit:'×',hint:'Solo visiva (rallentatore): non cambia la fisica.'},
+];
+let dirty=true;
+function buildControls(){
+  let html='';
+  for(const c of CONTROLS){
+    if(c.group){html+=`<h3 class="grp">${c.group}</h3>`;continue}
+    html+=`<div class="ctl"><div class="ctl-top"><label for="in_${c.k}">${c.label}</label>
+      <span class="val"><input type="number" id="in_${c.k}" min="${c.min}" max="${c.max}" step="${c.step}" value="${S[c.k].toFixed(c.dec)}"><span class="unit">${c.unit}</span></span></div>
+      <input type="range" id="rg_${c.k}" min="${c.min}" max="${c.max}" step="${c.step}" value="${S[c.k]}">${c.hint?`<small>${c.hint}</small>`:''}</div>`;
+  }
+  $('#controls').innerHTML=html;
+  for(const c of CONTROLS){
+    if(!c.k)continue;
+    const rg=$('#rg_'+c.k),nm=$('#in_'+c.k);
+    const apply=(v,fromNum)=>{
+      if(!isFinite(v))return;
+      v=Math.min(c.max,Math.max(c.min,v));S[c.k]=v;rg.value=v;
+      if(!fromNum)nm.value=v.toFixed(c.dec);
+      onChange(c.k);
+    };
+    rg.addEventListener('input',()=>apply(parseFloat(rg.value),false));
+    nm.addEventListener('input',()=>{const v=parseFloat(nm.value);if(isFinite(v))apply(v,true)});
+    nm.addEventListener('change',()=>{nm.value=S[c.k].toFixed(c.dec)});
+  }
+}
+function setControl(k,v){
+  const c=CONTROLS.find(x=>x.k===k);
+  v=Math.min(c.max,Math.max(c.min,v));S[k]=v;
+  $('#rg_'+k).value=v;$('#in_'+k).value=v.toFixed(c.dec);onChange(k);
+}
+function onChange(k){
+  if(k==='n')rebuildStreaks();
+  recompute();dirty=true;
+}
+
+/* ====================== DATI E FORMULE ====================== */
+const D={};
+function derive(){
+  const q=0.5*S.rho*S.U*S.U,mu=S.mu*1e-5;
+  Object.assign(D,{q,mu,Re:S.rho*S.U*S.chord/mu,M:S.U/A_SOUND,b:S.chord/G.chordZ,
+    L:q*S.chord*G.Cl,Dr:q*S.chord*G.Cd,Gam:0.5*S.U*S.chord*G.Cl,
+    Vmax:Math.sqrt(Math.max(0,1-G.cpMin)),pmin:G.cpMin*q,LD:G.Cd>0?G.Cl/G.Cd:0,
+    usim:Math.min(9,0.1*S.U*S.anim)});
+}
+const STATS=[
+  ['alpha','Angolo d\'attacco α','°'],['q','Pressione dinamica q = ½ρv²','Pa'],
+  ['L','Portanza L (per 1 m di apertura)','N'],['Dr','Resistenza D (per 1 m di apertura)','N'],
+  ['Cl','Coefficiente di portanza C_L',''],['Cd','Coefficiente di resistenza C_D',''],
+  ['LD','Efficienza L/D',''],['vmax','Velocità massima dell\'aria sul profilo','m/s'],
+  ['pmin','Pressione minima rispetto a p∞','Pa'],['M','Numero di Mach M',''],
+  ['Re','Numero di Reynolds Re',''],['alL0','Angolo di portanza nulla α₀','°'],
+  ['tc','Spessore massimo t/c','%'],['fc','Curvatura massima f/c','%'],
+  ['state','Stato del flusso','']
+];
+function buildStats(){
+  $('#stats').innerHTML=STATS.map(([id,l,u])=>`<div class="tile${id==='state'?' wide':''}" id="tile_${id}"><span class="tl">${l}</span><span class="tv"><span id="st_${id}">–</span>${u?`<small>${u}</small>`:''}</span></div>`).join('');
+}
+const fr=(n,d)=>`<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+function renderFormulas(){
+  const vmax=D.Vmax*S.U;
+  const aR=S.alpha*DEG,a0R=G.alphaL0*DEG;
+  const Clthin=2*Math.PI*(aR-a0R);
+  const dp=0.5*S.rho*(S.U*S.U-vmax*vmax);
+  const stallNum=G.stalled
+    ?`|α| = ${f(Math.abs(S.alpha),1)}° supera αₛ = ${f(S.alphaS,1)}° di ${f(G.over,1)}°<br>C<sub>L</sub> si riduce del ${f((1-G.fs)*100,0)} %: da ${f(G.Clp,3)} a <b>${f(G.Cl,3)}</b><br>C<sub>D</sub> sale a <b>${f(G.Cd,3)}</b>`
+    :`|α| = ${f(Math.abs(S.alpha),1)}° è sotto αₛ = ${f(S.alphaS,1)}° → <b>nessuno stallo</b>: il flusso resta attaccato al dorso`;
+  const cards=[
+  {cls:'intro',t:'Che cosa stai guardando',html:`<ul>
+    <li><b>La galleria del vento:</b> l'aria entra da sinistra a velocità <i>v</i>. Il fumo rende visibili le <i>linee di corrente</i>, cioè i percorsi seguiti dall'aria.</li>
+    <li><b>I colori:</b> blu = aria lenta, rosso = aria veloce.</li>
+    <li><b>L'idea in tre passi:</b> ① sopra l'ala il fumo si «stringe» e l'aria accelera (<i>continuità</i>); ② dove l'aria è più veloce la pressione è più bassa (<i>Bernoulli</i>); ③ sotto l'ala la pressione è maggiore che sopra: la differenza spinge l'ala verso l'alto (<i>portanza</i>).</li></ul>`},
+  {t:'I simboli che useremo',html:`<ul>
+    <li><i>v</i> = velocità del vento = <b>${f(S.U,1)} m/s</b></li>
+    <li><i>ρ</i> (rho) = densità dell'aria, cioè la massa di ogni m³ = <b>${f(S.rho,3)} kg/m³</b></li>
+    <li><i>c</i> = corda, la lunghezza del profilo = <b>${f(S.chord,2)} m</b></li>
+    <li><i>S</i> = superficie dell'ala. Consideriamo 1 m di apertura, quindi <i>S</i> = <i>c</i> × 1 m = <b>${f(S.chord,2)} m²</b></li>
+    <li><i>α</i> (alfa) = angolo d'attacco, tra la corda e la direzione del vento = <b>${f(S.alpha,1)}°</b></li>
+    <li><i>L</i> e <i>D</i> = portanza (perpendicolare al vento) e resistenza (parallela al vento)</li></ul>`},
+  {t:'1 · Pressione dinamica',
+   eq:`<i>q</i> = ${fr('1','2')} · <i>ρ</i> · <i>v</i>²`,
+   num:`q = 0,5 × ${f(S.rho,3)} × ${f(S.U,1)}² = <b>${f(D.q,1)} Pa</b>`,
+   note:'È l\'energia cinetica (½·m·v²) di ogni metro cubo d\'aria in movimento, perché ρ = massa / volume. Se la velocità raddoppia, q diventa 4 volte più grande.'},
+  {t:'2 · Continuità: perché l\'aria accelera',
+   eq:`<i>A</i><sub>1</sub> · <i>v</i><sub>1</sub> = <i>A</i><sub>2</sub> · <i>v</i><sub>2</sub>`,
+   num:`Se il «canale» d'aria si restringe a metà (A₂ = A₁/2), la velocità raddoppia: v₂ = 2·v₁.<br>Nella simulazione: vento v = ${f(S.U,1)} m/s, punto più veloce sul profilo = <b>${f(vmax,1)} m/s</b> (${f(vmax/S.U,2)} volte il vento)`,
+   note:'L\'aria a queste velocità non si comprime: se il passaggio si restringe, deve correre di più per far passare la stessa quantità. Guarda come i filetti di fumo si avvicinano sopra l\'ala.'},
+  {t:'3 · Bernoulli: velocità e pressione',
+   eq:`<i>p</i> + ½ · <i>ρ</i> · <i>v</i>² = costante<br><small>(lungo una stessa linea di corrente)</small>`,
+   num:`Punto più veloce del dorso:<br>p − p∞ = ½ρ(v² − v<sub>max</sub>²) = 0,5 × ${f(S.rho,3)} × (${f(S.U,1)}² − ${f(vmax,1)}²) = <b>${f(dp,0)} Pa</b><br>Punto di ristagno (aria ferma, v = 0): p − p∞ = ½ρv² = q = <b>${f(D.q,1)} Pa</b>`,
+   note:'Dove l\'aria corre di più la pressione è minore (dorso), dove rallenta è maggiore (ventre e bordo d\'attacco). p∞ è la pressione dell\'aria indisturbata, lontano dal profilo.'},
+  {t:'4 · Portanza',
+   eq:`<i>L</i> = ½ · <i>ρ</i> · <i>v</i>² · <i>S</i> · <i>C<sub>L</sub></i> = <i>q</i> · <i>S</i> · <i>C<sub>L</sub></i>`,
+   num:`L = ${f(D.q,1)} × ${f(S.chord,2)} × ${f(G.Cl,3)} = <b>${f(D.L,1)} N</b> (per 1 m di apertura)`,
+   note:'C_L è il coefficiente di portanza: un numero senza unità che dipende dalla forma del profilo e dall\'angolo d\'attacco. È la forza dovuta alla differenza di pressione tra ventre e dorso. Se v raddoppia, L quadruplica.'},
+  {t:'5 · Come cresce la portanza con l\'angolo',
+   eq:`<i>C<sub>L</sub></i> ≈ 2<i>π</i> · (<i>α</i> − <i>α</i><sub>0</sub>)<br><i>α</i><sub>rad</sub> = <i>α</i><sub>gradi</sub> · ${fr('π','180')}`,
+   num:`α = ${f(S.alpha,1)}° → ${f(aR,3)} rad<br>α₀ = ${f(G.alphaL0,2)}° → ${f(a0R,3)} rad<br>C_L ≈ 2π × (${f(aR,3)} − (${f(a0R,3)})) = <b>${f(Clthin,3)}</b><br>La simulazione, con un calcolo più completo, ottiene C_L = ${f(G.Clp,3)}`,
+   note:'Per angoli piccoli C_L cresce in modo proporzionale ad α (è una retta). α₀ è l\'angolo a cui la portanza è zero: un profilo simmetrico ha α₀ = 0, uno curvo ha α₀ negativo e quindi sostiene già con α = 0.'},
+  {t:'6 · Resistenza ed efficienza',
+   eq:`<i>D</i> = ½ · <i>ρ</i> · <i>v</i>² · <i>S</i> · <i>C<sub>D</sub></i><br>Efficienza = ${fr('<i>L</i>','<i>D</i>')}`,
+   num:`D = ${f(D.q,1)} × ${f(S.chord,2)} × ${f(G.Cd,4)} = <b>${f(D.Dr,2)} N</b><br>L/D = ${f(D.L,1)} / ${f(D.Dr,2)} = <b>${f(D.LD,1)}</b>`,
+   note:'La resistenza frena il profilo. Un buon profilo ha molta portanza e poca resistenza, cioè L/D alto (un aliante supera 40). Nel flusso ideale della simulazione la resistenza sarebbe zero: C_D è stato aggiunto con una formula empirica.'},
+  {t:'7 · Lo stallo',
+   eq:`se |<i>α</i>| &gt; <i>α<sub>s</sub></i> :&nbsp; <i>C<sub>L</sub></i> diminuisce e <i>C<sub>D</sub></i> aumenta`,
+   num:stallNum,
+   note:'Oltre circa 15° il flusso non riesce più a seguire il dorso: si stacca e forma vortici (la turbolenza che vedi nel fumo). La portanza cala e la resistenza cresce di colpo. Nel simulatore è un modello semplificato.'},
+  {t:'8 · Per curiosi: Mach e Reynolds',
+   eq:`<i>M</i> = ${fr('<i>v</i>','<i>a</i>')}&nbsp;&nbsp;&nbsp; <i>Re</i> = ${fr('<i>ρ · v · c</i>','<i>μ</i>')}`,
+   num:`M = ${f(S.U,1)} / ${f(A_SOUND,1)} = <b>${f(D.M,3)}</b><br>Re = ${f(S.rho,3)} × ${f(S.U,1)} × ${f(S.chord,2)} / (${f(S.mu,2)}·10⁻⁵) = <b>${f(D.Re,0)}</b>`,
+   note:'M confronta la velocità del vento con quella del suono a (340 m/s): sotto 0,3 l\'aria si può considerare incomprimibile, come fa la simulazione. '+(D.M>0.3?'<b style="color:#b45309">Ora M &gt; 0,3: la simulazione diventa meno precisa.</b> ':'')+'Re confronta gli effetti d\'inerzia con quelli dell\'attrito interno dell\'aria (viscosità μ): più è grande, più l\'aria scorre «liscia» attorno al profilo.'},
+  {t:'9 · Come fa il computer a disegnare il fumo',
+   eq:`posizione nuova = posizione vecchia + <i>v</i> · Δ<i>t</i>`,
+   num:`Questa è la legge del moto s = v·t, ripetuta ogni frazione di secondo (Δt) per ogni particella di fumo.`,
+   note:'Molte particelle partono dal pettine e a ogni istante si spostano secondo la velocità dell\'aria nel punto in cui si trovano. Quella velocità viene calcolata con un modello matematico del «flusso ideale» (senza attrito) che usa la trasformazione di Joukowski: è un argomento universitario e non serve per usare il simulatore.'},
+  ];
+  $('#formulas').innerHTML=cards.map(c=>`<article class="fcard ${c.cls||''}"><h3>${c.t}</h3>${c.html||`<div class="eq">${c.eq}</div><div class="num">${c.num}</div><p>${c.note}</p>`}</article>`).join('');
+}
+function updateUI(){
+  derive();
+  const o={alpha:f(S.alpha,1),q:f(D.q,1),L:f(D.L,1),Dr:f(D.Dr,2),Cl:f(G.Cl,3),Cd:f(G.Cd,4),LD:f(D.LD,1),vmax:f(D.Vmax*S.U,1),pmin:f(D.pmin,0),M:f(D.M,3),Re:f(D.Re,0),alL0:f(G.alphaL0,2),tc:f(G.tc*100,1),fc:f(G.fc*100,1),
+    state:G.stalled?'STALLO — distacco del flusso sul dorso':'Flusso aderente'};
+  for(const k in o){const e=$('#st_'+k);if(e)e.textContent=o[k]}
+  const st=$('#tile_state');st.classList.toggle('bad',G.stalled);st.classList.toggle('ok',!G.stalled);
+  renderFormulas();drawCp();
+}
+
+/* ====================== INTERAZIONE ====================== */
+let drag=null;
+const toWorld=e=>{const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left-V.x0)/V.s,y:-(e.clientY-r.top-V.y0)/V.s}};
+function moveDrag(w){
+  let a=drag.side<0?Math.atan2(w.y,-w.x):Math.atan2(-w.y,w.x);
+  a=Math.max(-25,Math.min(25,a/DEG));setControl('alpha',Math.round(a*10)/10);
+}
+cv.addEventListener('pointerdown',e=>{
+  const w=toWorld(e);
+  if(Math.hypot(w.x,w.y)<3.0){drag={side:w.x<0?-1:1};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing';moveDrag(w)}
+});
+cv.addEventListener('pointermove',e=>{
+  const w=toWorld(e);
+  if(drag)moveDrag(w);else cv.style.cursor=Math.hypot(w.x,w.y)<3.0?'grab':'default';
+});
+const endDrag=()=>{drag=null;cv.style.cursor='default'};
+cv.addEventListener('pointerup',endDrag);cv.addEventListener('pointercancel',endDrag);
+
+$('#btnPause').addEventListener('click',()=>{T.pause=!T.pause;$('#btnPause').textContent=T.pause?'▶ Riprendi':'⏸ Pausa'});
+$('#btnClear').addEventListener('click',()=>{rebuildStreaks()});
+$('#btnReset').addEventListener('click',()=>{
+  for(const k in DEFAULTS){const c=CONTROLS.find(x=>x.k===k);S[k]=DEFAULTS[k];$('#rg_'+k).value=DEFAULTS[k];$('#in_'+k).value=DEFAULTS[k].toFixed(c.dec)}
+  rebuildStreaks();recompute();dirty=true;warm(150);
+});
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{
+  const p=PRESETS[b.dataset.preset];setControl('eps',p.eps);setControl('kap',p.kap);
+}));
+for(const [id,key] of [['tg_forces','forces'],['tg_pressure','pressure'],['tg_color','colorSpeed'],['tg_ref','ref']])
+  $('#'+id).addEventListener('change',e=>{T[key]=e.target.checked});
+
+/* ====================== AVVIO ====================== */
+buildControls();buildStats();resize();rebuildStreaks();recompute();
+warm(220);
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  if(!T.pause){tt+=dt*S.anim;step(dt)}
+  if(dirty){dirty=false;updateUI()}
+  draw();
+  requestAnimationFrame(frame);
+}
+new ResizeObserver(()=>{resize();drawCp()}).observe(cv);
+new ResizeObserver(()=>drawCp()).observe(cpCv);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Giochi sulla memoria</title>
+<style>
+:root{--bg:#eef2f6;--card:#fff;--ink:#16243a;--mute:#5b6b82;--line:#cfd8e3;--acc:#1f5fd1;--accfg:#fff;--ok:#1b8a4b;--ko:#c0392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1724;--card:#17223a;--ink:#e8eef8;--mute:#9fb0c8;--line:#2b3a57;--acc:#6ea2ff;--accfg:#0f1724;--ok:#4cc582;--ko:#ff7b6b}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{max-width:760px;margin:0 auto;padding:24px 18px 8px}
+h1{font:600 2rem/1.15 "Iowan Old Style",Georgia,serif;margin:0 0 4px}
+header p{margin:0;color:var(--mute)}
+nav{max-width:760px;margin:12px auto 0;padding:0 18px;display:flex;gap:8px;flex-wrap:wrap}
+nav button{flex:1;min-width:140px;padding:10px 12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--acc);color:var(--accfg);border-color:var(--acc);font-weight:600}
+main{max-width:760px;margin:14px auto 40px;padding:0 18px}
+section{display:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;min-height:420px}
+section.on{display:block}
+h2{font:600 1.4rem/1.2 "Iowan Old Style",Georgia,serif;margin:0 0 6px}
+.intro{color:var(--mute);margin:0 0 16px}
+button.btn{padding:11px 20px;border:0;border-radius:10px;background:var(--acc);color:var(--accfg);font:600 1rem system-ui,sans-serif;cursor:pointer;margin:4px 6px 4px 0}
+button.btn.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.timer{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:0 0 14px}
+.timer i{display:block;height:100%;width:100%;background:var(--acc);transform-origin:left}
+.words{font-size:1.35rem;columns:2;padding-left:24px;margin:8px 0}
+.words li{margin:4px 0}
+.blank{background:#fff;color:#999;display:flex;align-items:center;justify-content:center;min-height:300px;border-radius:10px;border:1px solid var(--line)}
+.blank.wfull{position:fixed;inset:0;min-height:0;border:0;border-radius:0;z-index:50}
+.big{font:600 1.6rem/1.3 "Iowan Old Style",Georgia,serif;text-align:center;margin:20px 0}
+.syms{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;font-size:2.6rem;text-align:center}
+.syms span{background:var(--bg);border-radius:10px;padding:10px 0}
+.ducks{position:relative;height:440px;background:#8fc5f0;border-radius:10px;overflow:hidden;animation:bgf .7s steps(1) infinite}
+.ducks.full{position:fixed;inset:0;height:auto;border-radius:0;z-index:50}
+.ducks span{position:absolute;line-height:1;animation:wob var(--t,1.4s) ease-in-out infinite,hue var(--h,.9s) linear infinite}
+@keyframes wob{0%{transform:translate(0,0) rotate(0) scale(1)}25%{transform:translate(var(--dx),var(--dy)) rotate(140deg) scale(1.6)}50%{transform:translate(calc(var(--dx)*-1),var(--dy)) rotate(-100deg) scale(.7)}75%{transform:translate(var(--dy),calc(var(--dx)*-1)) rotate(220deg) scale(1.4)}100%{transform:translate(0,0) rotate(360deg) scale(1)}}
+@keyframes hue{from{filter:hue-rotate(0deg) saturate(2)}to{filter:hue-rotate(360deg) saturate(2)}}
+@keyframes bgf{0%{background:#8fc5f0}25%{background:#f7d774}50%{background:#f29fbf}75%{background:#a6e3a1}}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin:12px 0}
+.pick button{font-size:2rem;padding:8px 0;border:2px solid var(--line);background:var(--bg);border-radius:10px;cursor:pointer}
+.pick button.sel{border-color:var(--acc);background:var(--card);box-shadow:inset 0 0 0 2px var(--acc)}
+.pick button.ok{border-color:var(--ok)}.pick button.ko{border-color:var(--ko)}
+.res{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--bg);border-left:5px solid var(--acc)}
+.res.good{border-color:var(--ok)}.res.bad{border-color:var(--ko)}
+input[type=text]{font:1.4rem monospace;padding:10px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%;max-width:340px;letter-spacing:.2em}
+.mute{color:var(--mute);font-size:.92rem}
+@media (max-width:520px){.words{columns:1}.syms{font-size:2rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+<h1>Giochi sulla memoria</h1>
+<p>Tre prove per mettere alla prova la memoria a breve termine.</p>
+</header>
+<nav role="tablist">
+<button role="tab" aria-selected="true" data-t="g1">1 · Le parole</button>
+<button role="tab" aria-selected="false" data-t="g3">2 · I numeri</button>
+<button role="tab" aria-selected="false" data-t="g2">3 · I simboli</button>
+</nav>
+<main>
+
+<section id="g1" class="on">
+<h2>Le parole</h2>
+<p class="intro">Vedrai 10 parole per 5 secondi, poi uno schermo bianco di 2 secondi. Dovrai dire se una parola era nell’elenco.</p>
+<div id="g1area"><button class="btn" id="g1start">Inizia</button></div>
+</section>
+
+<section id="g2">
+<h2>I simboli</h2>
+<p class="intro">Vedrai 10 simboli per 5 secondi. Poi comparirà una papera colorata ogni mezzo secondo per 7 secondi: non lasciarti distrarre. Alla fine indica i simboli che ricordi.</p>
+<div id="g2area"><button class="btn" id="g2start">Inizia</button></div>
+</section>
+
+<section id="g3">
+<h2>I numeri</h2>
+<p class="intro">Ti mostro una sequenza di cifre, una alla volta. Riscrivila nello stesso ordine. A ogni risposta giusta la sequenza si allunga di una cifra.</p>
+<div id="g3area"><button class="btn" id="g3start">Inizia</button></div>
+</section>
+
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let runId=0; // annulla i giochi in corso quando cambi scheda
+
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  runId++;
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
+  resetAreas();
+});
+function resetAreas(){
+  $('#g1area').innerHTML='<button class="btn" id="g1start">Inizia</button>';$('#g1start').onclick=game1;
+  $('#g2area').innerHTML='<button class="btn" id="g2start">Inizia</button>';$('#g2start').onclick=game2;
+  $('#g3area').innerHTML='<button class="btn" id="g3start">Inizia</button>';$('#g3start').onclick=game3;
+}
+
+/* ---------- GIOCO 1 ---------- */
+const TOPICS={
+ "il sonno":["letto","cuscino","sogno","notte","pigiama","coperta","materasso","buio","russare","riposo","sveglia","stanchezza","lenzuolo","nanna","pisolino","insonnia"],
+ "il mare":["spiaggia","onda","sabbia","conchiglia","barca","ombrellone","sole","pesce","costume","scoglio","nuoto","gabbiano","faro","marea","salsedine","vela"],
+ "la cucina":["pentola","forchetta","coltello","fornello","piatto","padella","forno","cucchiaio","tovaglia","frigorifero","bicchiere","ricetta","grembiule","tagliere","sale","pasta"],
+ "la scuola":["banco","lavagna","quaderno","penna","zaino","compito","professore","campanella","interrogazione","libro","astuccio","gesso","voto","classe","ricreazione","matita"],
+ "la città":["strada","semaforo","autobus","piazza","negozio","palazzo","marciapiede","ponte","fontana","traffico","metro","incrocio","vigile","stazione","insegna","lampione"],
+ "il giardino":["fiore","prato","albero","siepe","rastrello","farfalla","annaffiatoio","terra","foglia","cancello","ape","seme","aiuola","panchina","vaso","rosa"],
+ "l’ospedale":["medico","infermiera","barella","corsia","visita","reparto","siringa","camice","ambulanza","paziente","cura","farmaco","ricovero","sala","termometro","mascherina"],
+ "la montagna":["cima","sentiero","neve","zaino","rifugio","roccia","valle","scarponi","funivia","ghiacciaio","cordata","bosco","vetta","sci","altitudine","torrente"]
+};
+let lastTopic=null;
+async function game1(){
+  const id=++runId, A=$('#g1area');
+  const keys=Object.keys(TOPICS).filter(k=>k!==lastTopic);
+  const topic=keys[Math.floor(Math.random()*keys.length)];lastTopic=topic;
+  const pool=shuffle(TOPICS[topic]);
+  const shown=pool.slice(0,10), others=pool.slice(10);
+  A.innerHTML='<p class="mute">Memorizza queste parole.</p><div class="timer"><i id="bar"></i></div><ul class="words">'+shown.map(w=>'<li>'+w+'</li>').join('')+'</ul>';
+  const bar=$('#bar');bar.style.transition='transform 5s linear';requestAnimationFrame(()=>requestAnimationFrame(()=>bar.style.transform='scaleX(0)'));
+  await wait(5000);if(id!==runId)return;
+  A.innerHTML='<div class="blank wfull" aria-label="Schermo bianco"></div>';
+  await wait(2000);if(id!==runId)return;
+  const present=Math.random()<0.5;
+  const word=present?shown[Math.floor(Math.random()*10)]:others[Math.floor(Math.random()*others.length)];
+  A.innerHTML='<p class="mute">Domanda</p><p class="big">Nell’elenco era presente questa parola?<br><b>'+word+'</b></p><div style="text-align:center"><button class="btn" data-a="1">Sì, c’era</button><button class="btn alt" data-a="0">No, non c’era</button></div>';
+  A.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{
+    const ok=(b.dataset.a==='1')===present;
+    A.innerHTML='<div class="res '+(ok?'good':'bad')+'"><b>'+(ok?'Giusto!':'Sbagliato.')+'</b> La parola «'+word+'» '+(present?'era':'non era')+' nell’elenco (argomento: '+topic+').</div><p class="mute">Elenco originale: '+shown.join(', ')+'.</p><button class="btn" id="again">Gioca ancora con parole nuove</button>';
+    $('#again').onclick=game1;
+  });
+}
+
+/* ---------- GIOCO 2 ---------- */
+const SYMS=["⚓","🔑","🍎","🚲","🎸","🌵","🕯️","🧲","🪁","🍄","🦉","⏰","🎲","🧩","🔔","🪴","🍋","🎈","🧭","🪑","📎","🥁","🌙","🚪","🧦","🎩","🪙","🛶","🧀","🔭"];
+async function game2(){
+  const id=++runId, A=$('#g2area');
+  const sh=shuffle(SYMS), target=sh.slice(0,10), decoy=sh.slice(10,20);
+  A.innerHTML='<p class="mute">Memorizza questi simboli.</p><div class="timer"><i id="bar"></i></div><div class="syms">'+target.map(s=>'<span>'+s+'</span>').join('')+'</div>';
+  const bar=$('#bar');bar.style.transition='transform 5s linear';requestAnimationFrame(()=>requestAnimationFrame(()=>bar.style.transform='scaleX(0)'));
+  await wait(5000);if(id!==runId)return;
+  A.innerHTML='<p class="mute">Guarda le papere…</p><div class="ducks full" id="ducks"></div>';
+  const box=$('#ducks'), hue0=Math.random()*360;
+  for(let i=0;i<14;i++){
+    const d=document.createElement('span');d.textContent='🦆';
+    d.style.fontSize=(2+Math.random()*3.5)+'rem';
+    d.style.left=(Math.random()*(box.clientWidth-90))+'px';
+    d.style.top=(Math.random()*(box.clientHeight-90))+'px';
+    d.style.setProperty('--dx',(Math.random()*240-120)+'px');
+    d.style.setProperty('--dy',(Math.random()*240-120)+'px');
+    d.style.setProperty('--t',(0.7+Math.random()*1.2)+'s');
+    d.style.setProperty('--h',(0.4+Math.random()*1.2)+'s');
+    d.style.animationDelay='-'+(Math.random()*2)+'s,-'+(Math.random()*2)+'s';
+    box.appendChild(d);
+    try{const ac=window.__ac||(window.__ac=new (window.AudioContext||window.webkitAudioContext)());const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=250+Math.random()*600;g.gain.value=.05;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.12)}catch(e){}
+    await wait(500);if(id!==runId)return;
+  }
+  const choices=shuffle([...target,...decoy]), sel=new Set();
+  A.innerHTML='<p class="big" style="margin:8px 0">Quali simboli c’erano?</p><p class="mute">Seleziona quelli che ricordi (erano 10).</p><div class="pick" id="pick">'+choices.map(s=>'<button data-s="'+s+'" aria-pressed="false">'+s+'</button>').join('')+'</div><button class="btn" id="check">Controlla</button>';
+  A.querySelectorAll('#pick button').forEach(b=>b.onclick=()=>{const s=b.dataset.s;sel.has(s)?sel.delete(s):sel.add(s);b.classList.toggle('sel',sel.has(s));b.setAttribute('aria-pressed',sel.has(s))});
+  $('#check').onclick=()=>{
+    let right=0,wrong=0;
+    A.querySelectorAll('#pick button').forEach(b=>{const s=b.dataset.s,t=target.includes(s),p=sel.has(s);b.disabled=true;
+      if(t&&p){right++;b.classList.add('ok')}else if(t&&!p){b.classList.add('ok');b.style.opacity='.55'}else if(!t&&p){wrong++;b.classList.add('ko')}});
+    const r=document.createElement('div');r.className='res '+(right>=7&&wrong<=1?'good':'');
+    r.innerHTML='<b>Ne hai riconosciuti '+right+' su 10</b> e hai scelto '+wrong+' simboli che non c’erano.<br><span class="mute">Bordo verde: erano presenti. Bordo rosso: non c’erano. Verde sbiadito: li avevi dimenticati.</span>';
+    $('#check').replaceWith(r);
+    const b=document.createElement('button');b.className='btn';b.textContent='Gioca ancora';b.onclick=game2;A.appendChild(b);
+  };
+}
+
+/* ---------- GIOCO 3 ---------- */
+async function game3(len=3,best=0){
+  const id=++runId, A=$('#g3area');
+  if(typeof len!=='number')len=3;
+  const seq=Array.from({length:len},()=>Math.floor(Math.random()*10)).join('');
+  A.innerHTML='<p class="mute">Sequenza di '+len+' cifre</p><div class="blank" style="min-height:200px;font:700 4rem monospace;color:#16243a" id="digit"></div>';
+  const dg=$('#digit');
+  await wait(600);
+  for(const c of seq){if(id!==runId)return;dg.textContent=c;await wait(800);dg.textContent='';await wait(250)}
+  if(id!==runId)return;
+  A.innerHTML='<p class="big" style="margin:8px 0">Che sequenza era?</p><input type="text" id="ans" inputmode="numeric" autocomplete="off" maxlength="'+len+'" aria-label="Sequenza"> <button class="btn" id="go">Invia</button>';
+  const inp=$('#ans');inp.focus();
+  const send=()=>{
+    const ok=inp.value.trim()===seq, nb=ok?Math.max(best,len):best;
+    A.innerHTML='<div class="res '+(ok?'good':'bad')+'"><b>'+(ok?'Giusto!':'Sbagliato.')+'</b> La sequenza era <b>'+seq+'</b>'+(ok?'.':', tu hai scritto «'+(inp.value||'niente')+'».')+'<br>Record di questa partita: '+nb+' cifre.</div>'+
+      (ok?'<button class="btn" id="nx">Avanti: '+(len+1)+' cifre</button>':'<button class="btn" id="nx">Riparti da 3 cifre</button>')+
+      '<p class="mute">In media una persona ricorda circa 7 elementi (più o meno 2).</p>';
+    $('#nx').onclick=()=>game3(ok?len+1:3,nb);
+  };
+  $('#go').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter')send()};
+}
+
+resetAreas();
+</script>
+</body>
+</html>

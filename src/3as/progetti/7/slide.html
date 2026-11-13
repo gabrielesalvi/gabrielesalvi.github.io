@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viaggio nel Sistema Solare - Presentazione 3D</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js per la grafica 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Font Inter & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020208;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Glassmorphism avanzato */
+        .glass-panel {
+            background: rgba(8, 12, 26, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.7);
+        }
+
+        .glass-card-front {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(3, 7, 18, 0.98));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8);
+        }
+
+        .glass-card-back {
+            background: linear-gradient(135deg, rgba(6, 14, 30, 0.98), rgba(15, 23, 42, 0.99));
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            box-shadow: 0 12px 40px rgba(56, 189, 248, 0.25);
+        }
+
+        /* 3D Flip Card Container */
+        .card-container {
+            perspective: 1200px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+
+        .card-container.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1.25rem;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(56, 189, 248, 0.5);
+            border-radius: 10px;
+        }
+
+        /* Card visibility animation */
+        .card-hidden {
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+            50% { box-shadow: 0 0 35px rgba(56, 189, 248, 0.7); }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2.5s infinite;
+        }
+
+        @keyframes floatHint {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .float-hint {
+            animation: floatHint 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between select-none relative overflow-hidden">
+
+    <!-- Sfondo Canvas 3D -->
+    <div id="canvas-container" class="fixed inset-0 z-0 w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+    <!-- Layout Principale Interfaccia -->
+    <div class="relative z-10 flex flex-col h-full justify-between p-4 md:p-6 pointer-events-none">
+
+        <!-- Header Superiore -->
+        <header class="flex justify-between items-center w-full max-w-7xl mx-auto glass-panel p-3 md:p-4 rounded-2xl pointer-events-auto">
+            <div class="flex items-center space-x-3">
+                <div class="w-3.5 h-3.5 rounded-full bg-cyan-400 animate-ping"></div>
+                <h1 class="font-orbitron font-bold text-base md:text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-indigo-300">
+                    SISTEMA SOLARE 3D <span class="text-xs text-cyan-400/90 font-normal border border-cyan-500/30 px-2 py-0.5 rounded-full ml-2 hidden sm:inline-block">Liceo Scientifico (3AS)</span>
+                </h1>
+            </div>
+
+            <!-- Indicatori Navigazione Rapida Pianeti -->
+            <div id="planet-tabs" class="hidden md:flex space-x-1 lg:space-x-1.5 overflow-x-auto py-1">
+                <!-- Generato via JS -->
+            </div>
+        </header>
+
+        <!-- NOME PIANETA SEMPRE VISIBILE IN ALTO AL CENTRO -->
+        <div class="pointer-events-auto text-center my-3">
+            <h2 id="main-planet-title" class="font-orbitron font-extrabold text-3xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-sky-400 tracking-widest drop-shadow-[0_4px_15px_rgba(56,189,248,0.4)]">
+                IL SOLE
+            </h2>
+            <div onclick="triggerPlanetClick()" class="cursor-pointer inline-flex items-center space-x-2 mt-1.5 glass-panel px-4 py-1.5 rounded-full border border-cyan-500/40 shadow-lg float-hint hover:border-cyan-400 transition-all">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span class="text-xs md:text-sm font-orbitron text-cyan-200">
+                    Clicca sul pianeta per aprire la scheda di approfondimento
+                </span>
+            </div>
+        </div>
+
+        <!-- Contenitore Principale Slide / Card compattata -->
+        <main class="w-full max-w-7xl mx-auto my-auto py-2 flex items-center justify-end relative h-[65vh]">
+            
+            <!-- Card compattata (Inizialmente nascosta) -->
+            <div id="interactive-card-wrapper" class="card-hidden w-full max-w-sm lg:max-w-md h-[460px] pointer-events-auto relative z-20">
+                
+                <!-- Pulsante di chiusura rapida carta -->
+                <button onclick="hideCard()" class="absolute -top-3 -right-3 z-30 w-8 h-8 rounded-full bg-slate-900 border border-cyan-500/50 text-cyan-400 flex items-center justify-center hover:bg-cyan-500 hover:text-slate-950 transition-colors shadow-lg">
+                    ✕
+                </button>
+
+                <div id="active-card-container" class="card-container w-full h-full pulse-glow rounded-2xl">
+                    <div class="card-inner" id="card-inner-element">
+                        <!-- FRONTE CARD (Trasparente / Scuro Glassmorphic) -->
+                        <div class="card-front glass-card-front p-6 flex flex-col justify-between items-center text-center cursor-pointer group" onclick="toggleCardFlip()">
+                            <div class="w-full flex justify-between items-center text-[11px] font-orbitron text-cyan-400 tracking-wider">
+                                <span id="card-badge">CURIOSITÀ SCIENTIFICHE</span>
+                                <span>GIRA SCHEDA ↻</span>
+                            </div>
+                            
+                            <div class="my-auto flex flex-col items-center">
+                                <div id="card-icon-bg" class="w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-500/20 to-blue-600/30 border border-cyan-500/40 flex items-center justify-center text-3xl shadow-lg shadow-cyan-500/20 mb-4 group-hover:scale-110 transition-transform">
+                                    <span id="card-icon">☀️</span>
+                                </div>
+                                <h3 id="card-title" class="font-orbitron text-xl font-bold text-white mb-2"></h3>
+                                <p id="card-teaser" class="text-xs text-slate-300 max-w-xs leading-relaxed"></p>
+                            </div>
+
+                            <div class="w-full py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-semibold text-xs group-hover:bg-cyan-500/30 transition-all">
+                                Clicca per scoprire i dettagli ➔
+                            </div>
+                        </div>
+
+                        <!-- RETRO CARD (Ricco di informazioni) -->
+                        <div class="card-back glass-card-back p-5 flex flex-col justify-between cursor-pointer" onclick="toggleCardFlip()">
+                            <div class="flex justify-between items-center border-b border-cyan-500/30 pb-2">
+                                <h4 id="card-back-title" class="font-orbitron font-bold text-xs md:text-sm text-cyan-400 flex items-center gap-2">
+                                </h4>
+                                <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/40">Fronte ↻</span>
+                            </div>
+
+                            <div id="card-back-content" class="custom-scrollbar overflow-y-auto my-2 pr-1.5 text-xs space-y-2 leading-relaxed">
+                            </div>
+
+                            <div class="text-center text-[10px] text-slate-400 pt-1.5 border-t border-slate-800/80">
+                                Clicca per tornare sul fronte • Trascina sullo sfondo per ruotare in 3D
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer controlli -->
+        <footer class="w-full max-w-7xl mx-auto glass-panel p-3 rounded-2xl flex items-center justify-between pointer-events-auto">
+            <button id="btn-prev" onclick="prevSlide()" class="px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-white font-medium text-xs md:text-sm transition-all flex items-center gap-2">
+                <span>←</span> Precedente
+            </button>
+
+            <!-- Avanzamento Slide -->
+            <div class="text-center">
+                <div id="current-slide-title" class="font-orbitron font-bold text-xs md:text-sm text-cyan-400 tracking-wide">
+                    01. IL SOLE
+                </div>
+                <div class="text-slate-400 text-[11px]">
+                    Pianeta <span id="slide-num">1</span> di 11
+                </div>
+            </div>
+
+            <button id="btn-next" onclick="nextSlide()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium text-xs md:text-sm transition-all flex items-center gap-2 shadow-lg shadow-cyan-500/20">
+                Successivo <span>→</span>
+            </button>
+        </footer>
+
+    </div>
+
+    <!-- Script Logica Dati, Generazione Texture Procedurali e Three.js -->
+    <script>
+        // Dati curati ed approfonditi per ogni corpo celeste integrati con le curiosità del file Word e i parametri tecnici completi
+        const slidesData = [
+            {
+                id: 0,
+                key: "sun",
+                name: "IL SOLE",
+                subtitle: "01. IL SOLE (Stella Madre)",
+                badge: "Tempesta Solare Record",
+                heading: "L'Evento Carrington del 1859",
+                icon: "☀️",
+                cardTitle: "Identikit del Sole",
+                frontTeaser: "Parametri fisici reali, tempo di viaggio dei fotoni e la straordinaria tempesta geomagnetica dell'Evento Carrington.",
+                content: `
+                    <!-- Scheda Dati Tecnici -->
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">1,41 g/cm³</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">TEMP. RANGE</div>
+                            <div class="text-slate-200 font-semibold">5.500°C ➔ 15mln°C</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~3 anni (Sonda)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-amber-500">
+                        <h5 class="font-bold text-amber-400 mb-1">⚡ L'Evento Carrington (1859)</h5>
+                        <p class="text-slate-300 mb-1.5">Nel settembre del 1859 si verificò la più potente tempesta geomagnetica mai documentata, osservata dall'astronomo Richard Carrington. Un'espulsione di massa coronale (CME) colpì la Terra in sole 17 ore.</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">L'impatto del plasma solare indusse correnti elettriche eccezionali lungo le linee telegrafiche. I cavi presero fuoco, le apparecchiature funzionarono staccate dalle batterie e aurore boreali illuminarono i Caraibi e Roma.</p>
+                    </div>
+                `
+            },
+            {
+                id: 1,
+                key: "mercury",
+                name: "MERCURIO",
+                subtitle: "02. MERCURIO (Pianeta Roccioso)",
+                badge: "Mondo Estremo",
+                heading: "Escursione Termica e Coda di Sodio",
+                icon: "☿️",
+                cardTitle: "Identikit di Mercurio",
+                frontTeaser: "Ghiaccio nei crateri polari perenni, un'escursione termica da record e una vera coda cometaria di sodio.",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">5,43 g/cm³</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">ESCURSIONE T.</div>
+                            <div class="text-slate-200 font-semibold">-180°C / +430°C</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~6.5 anni (BepiColombo)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-cyan-400">
+                        <h5 class="font-bold text-cyan-400 mb-1">❄️ Ghiaccio nell'Inferno e Coda Cometaria</h5>
+                        <p class="text-slate-300 mb-1.5">Sebbene sia il pianeta più vicino al Sole (+430°C diurni), Mercurio ospita depositi di ghiaccio d'acqua perenne nei crateri polari in ombra eterna.</p>
+                        <h5 class="font-bold text-amber-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">L'asse ha un'inclinazione di soli 0,03°: i fondi polari non vedono mai la luce (-180°C). Inoltre, il vento solare strappa atomi di sodio dalla crosta creando una coda cometaria lunga 2,5 milioni di km.</p>
+                    </div>
+                `
+            },
+            {
+                id: 2,
+                key: "venus",
+                name: "VENERE",
+                subtitle: "03. VENERE (Serra Fuori Controllo)",
+                badge: "Enigma della Fosfina",
+                heading: "Tracce di Fosfina nell'Atmosfera",
+                icon: "♀️",
+                cardTitle: "Identikit di Venere",
+                frontTeaser: "Nel 2020 è stata rilevata fosfina nelle nubi di Venere, molecola che sulla Terra è legata all'attività biologica.",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">5,24 g/cm³</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">ESCURSIONE T.</div>
+                            <div class="text-slate-200 font-semibold">Quasi 0°C (465°C fisso)</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~4 mesi (Diretta)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-pink-500">
+                        <h5 class="font-bold text-pink-400 mb-1">🧪 Il Mistero della Fosfina (PH₃)</h5>
+                        <p class="text-slate-300 mb-1.5">Nel 2020 astronomi hanno scoperto tracce di fosfina negli strati temperati a 50 km d'altezza dell'atmosfera di Venere.</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">Sulla Terra è prodotta da batteri anaerobici o sintesi industriale. Poiché l'ambiente distruggerebbe rapidamente la fosfina, la sua presenza suggerisce chimica esotica o micro-vita atmosferica protetta.</p>
+                    </div>
+                `
+            },
+            {
+                id: 3,
+                key: "earth",
+                name: "TERRA",
+                subtitle: "04. LA TERRA (Mondo Abitabile)",
+                badge: "Pioggia Cosmica",
+                heading: "100 Tonnellate di Polvere Cosmica al Giorno",
+                icon: "🌍",
+                cardTitle: "Identikit della Terra",
+                frontTeaser: "Ogni giorno sul nostro pianeta cadono circa 100 tonnellate di polvere e micro-meteoriti dallo spazio.",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">5,51 g/cm³ (MAX)</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">ESCURSIONE T.</div>
+                            <div class="text-slate-200 font-semibold">Media 15°C (-89 / +57)</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">ORIGINE</div>
+                            <div class="text-slate-200 font-semibold">Punto 0 (Casa)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-emerald-400">
+                        <h5 class="font-bold text-emerald-400 mb-1">☄️ La Pioggia Silenziosa di Polvere Spaziale</h5>
+                        <p class="text-slate-300 mb-1.5">Ogni 24 ore la Terra aumenta la propria massa di circa 100 tonnellate per l'accumulo ininterrotto di materia interplanetaria.</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">Il campo gravitazionale terrestre cattura detriti lasciati da comete e asteroidi. Micrometeoriti con diametro inferiore al millimetro sublimano nell'alta atmosfera, depositando preziosi silicati sotto forma di polvere.</p>
+                    </div>
+                `
+            },
+            {
+                id: 4,
+                key: "moon",
+                name: "LA LUNA",
+                subtitle: "05. LA LUNA (Satellite Naturale)",
+                badge: "Fenomeni Luminosi TLP",
+                heading: "Transient Lunar Phenomena",
+                icon: "🌙",
+                cardTitle: "Identikit della Luna",
+                frontTeaser: "Bagliori, nebbie e lampi colorati temporanei sulla superficie lunare descritti dagli astronauti Apollo.",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">3,34 g/cm³</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">ESCURSIONE T.</div>
+                            <div class="text-slate-200 font-semibold">-130°C / +120°C</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~3 giorni (Apollo)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-indigo-400">
+                        <h5 class="font-bold text-indigo-300 mb-1">✨ I Fenomeni Luminosi Temporanei (TLP)</h5>
+                        <p class="text-slate-300 mb-1.5">Durante le missioni Apollo e in secoli di osservazioni sono stati avvistati brevi bagliori, foschie e variazioni cromatiche locali sulla Luna.</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">I TLP sono attribuiti al rilascio improvviso di gas intrappolati nel sottosuolo (come il Radon) per stress mareali terrestri, impatti ad alta velocità di micrometeoriti e scariche elettrostatiche di polvere.</p>
+                    </div>
+                `
+            },
+            {
+                id: 5,
+                key: "mars",
+                name: "MARTE",
+                subtitle: "06. MARTE (Pianeta Rosso)",
+                badge: "Vita Microbica Substrato",
+                heading: "Possibile Micro-vita nel Sottosuolo",
+                icon: "♂️",
+                cardTitle: "Identikit di Marte",
+                frontTeaser: "La presenza di metano stagionale e laghi subglaciali suggerisce che microbi possano sopravvivere sotto il suolo.",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">3,93 g/cm³</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">ESCURSIONE T.</div>
+                            <div class="text-slate-200 font-semibold">+20°C / -125°C</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~7 mesi (Hohmann)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-red-500">
+                        <h5 class="font-bold text-red-400 mb-1">🦠 Biosfera Nascosta nel Sottosuolo</h5>
+                        <p class="text-slate-300 mb-1.5">La superficie è colpita da radiazioni UV letali, ma al di sotto della crosta potrebbero essersi rifugiate colonie di microbi estremofili.</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">I rover hanno rilevato variazioni stagionali di metano e sacche d'acqua salata subglaciali. Nel sottosuolo protetto, batteri litotropici potrebbero ricavare energia dalla reazione tra minerali di ferro e acqua.</p>
+                    </div>
+                `
+            },
+            {
+                id: 6,
+                key: "asteroids",
+                name: "FASCIA DI ASTEROIDI",
+                subtitle: "07. FASCIA DI ASTEROIDI (Tra Marte e Giove)",
+                badge: "Pianeta Mancato",
+                heading: "I Relitti della Formazione del Sistema Solare",
+                icon: "🪐",
+                cardTitle: "Identikit della Fascia",
+                frontTeaser: "Miliardi di rocce spaziali che non sono mai riuscite a formare un pianeta a causa delle maree di Giove.",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">~2,5 g/cm³</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">TEMP. MEDIA</div>
+                            <div class="text-slate-200 font-semibold">-73°C / -100°C</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~1-3 anni (Sonde)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-yellow-500">
+                        <h5 class="font-bold text-yellow-400 mb-1">☄️ Il Pianeta Mai Nato e Cerere</h5>
+                        <p class="text-slate-300 mb-1.5">Tra Marte e Giove si trova una vasta regione con milioni di frammenti rocciosi e il pianeta nano Cerere, che costituisce un terzo della massa.</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">L'immensa gravità di Giove ha provocato risonanze orbitali, accelerando i planetoidi a velocità tali che le collisioni li distruggevano anziché fonderli in un unico pianeta.</p>
+                    </div>
+                `
+            },
+            {
+                id: 7,
+                key: "jupiter",
+                name: "GIOVE",
+                subtitle: "08. GIOVE (Gigante Gassoso)",
+                badge: "Oceani Alieni e Tempeste",
+                heading: "La Grande Macchia Rossa ed Europa/Ganimede",
+                icon: "♃",
+                cardTitle: "Identikit di Giove",
+                frontTeaser: "Una tempesta attiva da oltre 350 anni e lune oceaniche che potrebbero custodire la vita aliena.",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">1,33 g/cm³</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">RANGE TEMP.</div>
+                            <div class="text-slate-200 font-semibold">-145°C ➔ 24.000°C</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~3 - 6 anni (Juno)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-amber-600">
+                        <h5 class="font-bold text-amber-400 mb-1">🌀 Tempesta Secolare ed Oceani Nascosti</h5>
+                        <p class="text-slate-300 mb-1.5">La Grande Macchia Rossa è un uragano attivo da almeno 350 anni. Le lune Europa e Ganimede nascondono enormi oceani liquidi sotto i ghiacci.</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">La tempesta persiste per assenza di crosta solida e calore interno. Sulle lune, il forte attrito mareale generato da Giove riscalda l'interno, mantenendo liquidi gli oceani subglaciali.</p>
+                    </div>
+                `
+            },
+            {
+                id: 8,
+                key: "saturn",
+                name: "SATURNO",
+                subtitle: "09. SATURNO (Signore degli Anelli)",
+                badge: "Anelli Giovani",
+                heading: "Gli Anelli sono piovuti dalle Comete",
+                icon: "♄",
+                cardTitle: "Identikit di Saturno",
+                frontTeaser: "Gli anelli spettacolari di Saturno sono incredibilmente giovani: ai tempi dei dinosauri non esistevano ancora!",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">0,69 g/cm³ (MIN)</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">RANGE TEMP.</div>
+                            <div class="text-slate-200 font-semibold">-178°C ➔ 11.700°C</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~3.2 - 7 anni (Cassini)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-yellow-400">
+                        <h5 class="font-bold text-yellow-300 mb-1">💍 Anelli Giovani ed Evanescenti</h5>
+                        <p class="text-slate-300 mb-1.5">I dati Cassini rivelano che gli anelli hanno 10-100 milioni di anni: quando i dinosauri dominavano la Terra, Saturno non aveva gli anelli!</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">Composti da ghiaccio d'acqua purissimo, si sono formati dalla distruzione di una luna o cometa. Stanno precipitando sul pianeta come pioggia d'anello e spariranno tra 300 milioni di anni.</p>
+                    </div>
+                `
+            },
+            {
+                id: 9,
+                key: "uranus",
+                name: "URANO",
+                subtitle: "10. URANO (Gigante di Ghiaccio)",
+                badge: "Pianeta Sottosopra",
+                heading: "Il Pianeta che Rotola lungo l'Orbita",
+                icon: "♅",
+                cardTitle: "Identikit di Urano",
+                frontTeaser: "L'unico pianeta con un'inclinazione assiale di 98° che orbita intorno al Sole 'rotolando' sul fianco.",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">1,27 g/cm³</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">TEMP. MINIMA</div>
+                            <div class="text-slate-200 font-semibold">-224°C (Record)</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~9.5 anni (Voyager 2)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-teal-400">
+                        <h5 class="font-bold text-teal-300 mb-1">🔄 L'Asse Inclinato a 98 Gradi</h5>
+                        <p class="text-slate-300 mb-1.5">Urano ha l'asse di rotazione quasi parallelo al piano orbitale, dando l'impressione che rotoli lungo la rotta attorno al Sole.</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">Nelle prime fasi del Sistema Solare, Urano ha subito un impatto catastrofico con un protopianeta roccioso grande il doppio della Terra che ne ha ribaltato l'asse.</p>
+                    </div>
+                `
+            },
+            {
+                id: 10,
+                key: "neptune",
+                name: "NETTUNO",
+                subtitle: "11. NETTUNO (Gigante di Ghiaccio)",
+                badge: "Scoperte e Calore",
+                heading: "Calore Interno e Scoperta Matematica",
+                icon: "♆",
+                cardTitle: "Identikit di Nettuno",
+                frontTeaser: "Emette più del doppio dell'energia che riceve dal Sole e fu scoperto con la matematica prima del telescopio.",
+                content: `
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+                        <div class="p-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-center">
+                            <div class="text-cyan-400 font-bold">DENSITÀ</div>
+                            <div class="text-slate-200 font-semibold">1,64 g/cm³</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-amber-950/60 border border-amber-500/30 text-center">
+                            <div class="text-amber-400 font-bold">TEMP. MEDIA</div>
+                            <div class="text-slate-200 font-semibold">-218°C (Esterno)</div>
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-blue-950/60 border border-blue-500/30 text-center">
+                            <div class="text-blue-300 font-bold">TEMPO VIAGGIO</div>
+                            <div class="text-slate-200 font-semibold">~12 anni (Voyager 2)</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-900/80 border-l-4 border-blue-600">
+                        <h5 class="font-bold text-blue-400 mb-1">📐 Matematica Pura e Calore Interno</h5>
+                        <p class="text-slate-300 mb-1.5">Nettuno è stato scoperto tramite calcoli matematici prima dell'osservazione ed emette 2,6 volte l'energia che riceve dal Sole.</p>
+                        <h5 class="font-bold text-cyan-400 mb-0.5">🔬 Spiegazione Scientifica</h5>
+                        <p class="text-slate-300">Nel 1846 Urbain Le Verrier ne calcolò la posizione esatta analizzando le perturbazioni gravitazionali su Urano. Il calore residuo interno genera venti supersonici da 2.100 km/h.</p>
+                    </div>
+                `
+            }
+        ];
+
+        let currentSlideIndex = 0;
+        let isCardVisible = false;
+
+        // Renderizzatore UI Navigazione
+        function renderSlidesUI() {
+            const tabsContainer = document.getElementById('planet-tabs');
+            tabsContainer.innerHTML = "";
+
+            slidesData.forEach((s, idx) => {
+                const tabBtn = document.createElement('button');
+                tabBtn.className = `px-2 py-1 rounded-lg text-[11px] font-orbitron transition-all ${idx === 0 ? 'bg-cyan-400 text-slate-950 font-bold shadow-md shadow-cyan-400/30' : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800'}`;
+                tabBtn.innerText = s.name;
+                tabBtn.onclick = () => goToSlide(idx);
+                tabBtn.id = `tab-btn-${idx}`;
+                tabsContainer.appendChild(tabBtn);
+            });
+
+            loadCardData(0);
+        }
+
+        function loadCardData(index) {
+            const s = slidesData[index];
+            document.getElementById('main-planet-title').innerText = s.name;
+            document.getElementById('card-badge').innerText = s.badge.toUpperCase();
+            document.getElementById('card-icon').innerText = s.icon;
+            document.getElementById('card-title').innerText = s.cardTitle;
+            document.getElementById('card-teaser').innerText = s.frontTeaser;
+
+            document.getElementById('card-back-title').innerHTML = `<span>${s.icon}</span> ${s.cardTitle}`;
+            document.getElementById('card-back-content').innerHTML = s.content;
+
+            document.getElementById('current-slide-title').innerText = s.subtitle;
+            document.getElementById('slide-num').innerText = index + 1;
+
+            // Reset carta a lato fronte al cambio pianeta
+            document.getElementById('active-card-container').classList.remove('flipped');
+        }
+
+        function toggleCardFlip() {
+            document.getElementById('active-card-container').classList.toggle('flipped');
+        }
+
+        function showCard() {
+            const wrapper = document.getElementById('interactive-card-wrapper');
+            wrapper.classList.remove('card-hidden');
+            wrapper.classList.add('card-visible');
+            isCardVisible = true;
+        }
+
+        function hideCard() {
+            const wrapper = document.getElementById('interactive-card-wrapper');
+            wrapper.classList.remove('card-visible');
+            wrapper.classList.add('card-hidden');
+            isCardVisible = false;
+        }
+
+        function triggerPlanetClick() {
+            if (isCardVisible) {
+                hideCard();
+            } else {
+                showCard();
+            }
+        }
+
+        function updateSlideUI() {
+            slidesData.forEach((_, idx) => {
+                const tabBtn = document.getElementById(`tab-btn-${idx}`);
+                if (tabBtn) {
+                    tabBtn.className = idx === currentSlideIndex 
+                        ? 'px-2 py-1 rounded-lg text-[11px] font-orbitron transition-all bg-cyan-400 text-slate-950 font-bold shadow-md shadow-cyan-400/30'
+                        : 'px-2 py-1 rounded-lg text-[11px] font-orbitron transition-all bg-slate-900/90 text-slate-300 hover:bg-slate-800';
+                }
+            });
+
+            hideCard();
+            loadCardData(currentSlideIndex);
+            update3DScene(slidesData[currentSlideIndex].key);
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < slidesData.length - 1) {
+                currentSlideIndex++;
+                updateSlideUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlideIndex = index;
+            updateSlideUI();
+        }
+
+        // Navigazione Tastiera
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'Escape') hideCard();
+        });
+
+        // ===================================================
+        // ALGORITMO DI NOISE PROCEDURALE PER TEXTURE REALISTICHE
+        // ===================================================
+
+        function generatePerlinNoise2D(width, height, octaveCount = 4) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            const imgData = ctx.createImageData(width, height);
+            const data = imgData.data;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    let val = 0;
+                    let freq = 1;
+                    let amp = 1;
+                    let maxVal = 0;
+
+                    for (let o = 0; o < octaveCount; o++) {
+                        const nx = (x / width) * 8 * freq;
+                        const ny = (y / height) * 4 * freq;
+                        const n = (Math.sin(nx) + Math.cos(ny) + Math.sin(nx * 1.5 + ny * 2.1)) * 0.5 + 0.5;
+                        val += n * amp;
+                        maxVal += amp;
+                        amp *= 0.5;
+                        freq *= 2;
+                    }
+
+                    val = val / maxVal;
+                    const idx = (y * width + x) * 4;
+                    const c = Math.floor(val * 255);
+                    data[idx] = c;
+                    data[idx + 1] = c;
+                    data[idx + 2] = c;
+                    data[idx + 3] = 255;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            return canvas;
+        }
+
+        function generatePhotorealisticTexture(type) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 2048;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+
+            // Riempi lo sfondo per evitare qualsiasi cucitura ai bordi 0 e 2048
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, 2048, 1024);
+
+            if (type === 'sun') {
+                const grad = ctx.createLinearGradient(0, 0, 0, 1024);
+                grad.addColorStop(0, '#ff2200');
+                grad.addColorStop(0.2, '#ff5500');
+                grad.addColorStop(0.5, '#ffaa00');
+                grad.addColorStop(0.8, '#ff4400');
+                grad.addColorStop(1, '#ff1100');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 2048, 1024);
+
+                const noise = generatePerlinNoise2D(2048, 1024, 5);
+                ctx.globalCompositeOperation = 'color-dodge';
+                ctx.globalAlpha = 0.65;
+                ctx.drawImage(noise, 0, 0);
+
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.globalAlpha = 0.35;
+                ctx.drawImage(noise, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+
+            } else if (type === 'mercury' || type === 'moon') {
+                const grad = ctx.createLinearGradient(0, 0, 2048, 1024);
+                grad.addColorStop(0, '#3f3f46');
+                grad.addColorStop(0.25, '#71717a');
+                grad.addColorStop(0.5, '#52525b');
+                grad.addColorStop(0.75, '#64748b');
+                grad.addColorStop(1, '#3f3f46');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 2048, 1024);
+
+                const noise = generatePerlinNoise2D(2048, 1024, 6);
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.globalAlpha = 0.6;
+                ctx.drawImage(noise, 0, 0);
+
+                ctx.globalCompositeOperation = 'soft-light';
+                ctx.globalAlpha = 0.8;
+                ctx.drawImage(noise, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+
+            } else if (type === 'venus') {
+                const grad = ctx.createLinearGradient(0, 0, 0, 1024);
+                grad.addColorStop(0, '#78350f');
+                grad.addColorStop(0.25, '#b45309');
+                grad.addColorStop(0.5, '#f59e0b');
+                grad.addColorStop(0.75, '#d97706');
+                grad.addColorStop(1, '#92400e');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 2048, 1024);
+
+                const noise = generatePerlinNoise2D(2048, 1024, 4);
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.globalAlpha = 0.55;
+                ctx.drawImage(noise, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+
+            } else if (type === 'earth') {
+                const oceanGrad = ctx.createLinearGradient(0, 0, 0, 1024);
+                oceanGrad.addColorStop(0, '#0284c7');
+                oceanGrad.addColorStop(0.3, '#1e3a8a');
+                oceanGrad.addColorStop(0.5, '#0f172a');
+                oceanGrad.addColorStop(0.7, '#1e3a8a');
+                oceanGrad.addColorStop(1, '#0284c7');
+                ctx.fillStyle = oceanGrad;
+                ctx.fillRect(0, 0, 2048, 1024);
+
+                const noiseCanvas = generatePerlinNoise2D(2048, 1024, 5);
+                const noiseCtx = noiseCanvas.getContext('2d');
+                const nData = noiseCtx.getImageData(0, 0, 2048, 1024);
+                const pixels = nData.data;
+
+                for (let y = 0; y < 1024; y++) {
+                    const lat = Math.abs(y - 512) / 512;
+                    for (let x = 0; x < 2048; x++) {
+                        const i = (y * 2048 + x) * 4;
+                        const val = pixels[i];
+                        
+                        if (val > 115 && lat < 0.88) {
+                            if (val > 165) {
+                                ctx.fillStyle = '#15803d';
+                            } else if (val > 140) {
+                                ctx.fillStyle = '#b45309';
+                            } else {
+                                ctx.fillStyle = '#65a30d';
+                            }
+                            ctx.fillRect(x, y, 2.2, 2.2);
+                        }
+                    }
+                }
+
+                const polarGradTop = ctx.createLinearGradient(0, 0, 0, 90);
+                polarGradTop.addColorStop(0, 'rgba(255,255,255,1)');
+                polarGradTop.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = polarGradTop;
+                ctx.fillRect(0, 0, 2048, 90);
+
+                const polarGradBot = ctx.createLinearGradient(0, 934, 0, 1024);
+                polarGradBot.addColorStop(0, 'rgba(255,255,255,0)');
+                polarGradBot.addColorStop(1, 'rgba(255,255,255,1)');
+                ctx.fillStyle = polarGradBot;
+                ctx.fillRect(0, 934, 2048, 90);
+
+            } else if (type === 'earth_clouds') {
+                ctx.clearRect(0, 0, 2048, 1024);
+                const cloudNoise = generatePerlinNoise2D(2048, 1024, 4);
+                const cCtx = cloudNoise.getContext('2d');
+                const cData = cCtx.getImageData(0, 0, 2048, 1024);
+                const p = cData.data;
+
+                for (let y = 0; y < 1024; y++) {
+                    for (let x = 0; x < 2048; x++) {
+                        const i = (y * 2048 + x) * 4;
+                        if (p[i] > 130) {
+                            const alpha = (p[i] - 130) / 125;
+                            ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
+                            ctx.fillRect(x, y, 2.5, 2.5);
+                        }
+                    }
+                }
+
+            } else if (type === 'mars') {
+                const grad = ctx.createLinearGradient(0, 0, 2048, 1024);
+                grad.addColorStop(0, '#9a3412');
+                grad.addColorStop(0.2, '#c2410c');
+                grad.addColorStop(0.4, '#ea580c');
+                grad.addColorStop(0.7, '#7c2d12');
+                grad.addColorStop(1, '#9a3412');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 2048, 1024);
+
+                const noise = generatePerlinNoise2D(2048, 1024, 5);
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.globalAlpha = 0.45;
+                ctx.drawImage(noise, 0, 0);
+
+                ctx.globalCompositeOperation = 'screen';
+                ctx.globalAlpha = 0.25;
+                ctx.drawImage(noise, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+
+                ctx.fillStyle = 'rgba(67, 20, 7, 0.75)';
+                ctx.beginPath();
+                ctx.moveTo(400, 520);
+                ctx.bezierCurveTo(800, 570, 1300, 470, 1640, 550);
+                ctx.bezierCurveTo(1300, 610, 800, 630, 400, 560);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.ellipse(1024, 20, 1024, 35, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(1024, 1004, 1024, 35, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+            } else if (type === 'jupiter') {
+                for (let y = 0; y < 1024; y++) {
+                    const wave = Math.sin(y / 24) * 25 + Math.cos(y / 10) * 15;
+                    ctx.fillStyle = `rgb(${210 + wave}, ${145 + wave * 0.6}, ${85 + wave * 0.3})`;
+                    ctx.fillRect(0, y, 2048, 1);
+                }
+
+                const noise = generatePerlinNoise2D(2048, 1024, 4);
+                ctx.globalCompositeOperation = 'soft-light';
+                ctx.globalAlpha = 0.65;
+                ctx.drawImage(noise, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+
+                const redSpotGrad = ctx.createRadialGradient(1360, 620, 8, 1360, 620, 120);
+                redSpotGrad.addColorStop(0, '#991b1b');
+                redSpotGrad.addColorStop(0.6, '#dc2626');
+                redSpotGrad.addColorStop(1, 'rgba(217, 119, 6, 0)');
+                ctx.fillStyle = redSpotGrad;
+                ctx.beginPath();
+                ctx.ellipse(1360, 620, 120, 75, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+            } else if (type === 'saturn') {
+                for (let y = 0; y < 1024; y++) {
+                    const band = Math.sin(y / 16) * 20;
+                    ctx.fillStyle = `rgb(${225 + band}, ${185 + band}, ${125 + band * 0.4})`;
+                    ctx.fillRect(0, y, 2048, 1);
+                }
+
+                const noise = generatePerlinNoise2D(2048, 1024, 4);
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.globalAlpha = 0.35;
+                ctx.drawImage(noise, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+
+            } else if (type === 'saturn_ring') {
+                const ringCanvas = document.createElement('canvas');
+                ringCanvas.width = 1024;
+                ringCanvas.height = 1024;
+                const rCtx = ringCanvas.getContext('2d');
+                const grad = rCtx.createRadialGradient(512, 512, 180, 512, 512, 500);
+                grad.addColorStop(0, 'rgba(0,0,0,0)');
+                grad.addColorStop(0.35, 'rgba(217, 119, 6, 0.9)');
+                grad.addColorStop(0.55, 'rgba(251, 191, 36, 0.85)');
+                grad.addColorStop(0.75, 'rgba(120, 53, 15, 0.4)');
+                grad.addColorStop(1, 'rgba(245, 158, 11, 0.85)');
+                rCtx.fillStyle = grad;
+                rCtx.fillRect(0, 0, 1024, 1024);
+                return new THREE.CanvasTexture(ringCanvas);
+
+            } else if (type === 'uranus') {
+                const grad = ctx.createLinearGradient(0, 0, 0, 1024);
+                grad.addColorStop(0, '#06b6d4');
+                grad.addColorStop(0.3, '#22d3ee');
+                grad.addColorStop(0.7, '#0891b2');
+                grad.addColorStop(1, '#0e7490');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 2048, 1024);
+
+                const noise = generatePerlinNoise2D(2048, 1024, 3);
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.globalAlpha = 0.3;
+                ctx.drawImage(noise, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+
+            } else if (type === 'neptune') {
+                const grad = ctx.createLinearGradient(0, 0, 2048, 1024);
+                grad.addColorStop(0, '#1d4ed8');
+                grad.addColorStop(0.3, '#2563eb');
+                grad.addColorStop(0.6, '#1e40af');
+                grad.addColorStop(1, '#1e3a8a');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 2048, 1024);
+
+                const noise = generatePerlinNoise2D(2048, 1024, 4);
+                ctx.globalCompositeOperation = 'soft-light';
+                ctx.globalAlpha = 0.5;
+                ctx.drawImage(noise, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.ellipse(700, 440, 220, 12, Math.PI / 16, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.65)';
+                ctx.beginPath();
+                ctx.ellipse(1100, 580, 140, 75, -Math.PI / 12, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+            return texture;
+        }
+
+        // ===================================================
+        // SCENA THREE.JS CON SHADER E ILLUMINAZIONE SPAZIALE REALISTICA
+        // ===================================================
+        let scene, camera, renderer, controls;
+        let planetGroup, earthCloudsMesh;
+        let currentModels = {};
+        let raycaster, mouse;
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x020208, 0.006);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 9.8);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 20;
+            controls.minDistance = 3.8;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+            scene.add(ambientLight);
+
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1.8);
+            mainLight.position.set(7, 4, 6);
+            scene.add(mainLight);
+
+            const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.5);
+            rimLight.position.set(-7, -4, -6);
+            scene.add(rimLight);
+
+            createStarfield();
+
+            planetGroup = new THREE.Group();
+            scene.add(planetGroup);
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            buildPlanetModels();
+            update3DScene('sun');
+
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('pointerdown', onPointerDown);
+
+            animate();
+        }
+
+        function createStarfield() {
+            const starsGeometry = new THREE.BufferGeometry();
+            const count = 5000;
+            const positions = new Float32Array(count * 3);
+
+            for (let i = 0; i < count * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 280;
+                positions[i + 1] = (Math.random() - 0.5) * 280;
+                positions[i + 2] = (Math.random() - 0.5) * 280;
+            }
+
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const starsMaterial = new THREE.PointsMaterial({ size: 0.8, color: 0xffffff, transparent: true, opacity: 0.85 });
+            scene.add(new THREE.Points(starsGeometry, starsMaterial));
+        }
+
+        function buildPlanetModels() {
+            // 1. SOLE
+            const sunGroup = new THREE.Group();
+            const sunTex = generatePhotorealisticTexture('sun');
+            const sunGeo = new THREE.SphereGeometry(2.7, 64, 64);
+            const sunMat = new THREE.MeshBasicMaterial({ map: sunTex });
+            sunGroup.add(new THREE.Mesh(sunGeo, sunMat));
+
+            const coronaGeo = new THREE.SphereGeometry(3.05, 32, 32);
+            const coronaMat = new THREE.MeshBasicMaterial({ color: 0xff5500, transparent: true, opacity: 0.3, side: THREE.BackSide });
+            sunGroup.add(new THREE.Mesh(coronaGeo, coronaMat));
+            currentModels['sun'] = sunGroup;
+
+            // 2. MERCURIO
+            const mercGroup = new THREE.Group();
+            const mercTex = generatePhotorealisticTexture('mercury');
+            const mercGeo = new THREE.SphereGeometry(2.3, 64, 64);
+            const mercMat = new THREE.MeshStandardMaterial({ map: mercTex, roughness: 0.85, metalness: 0.15 });
+            mercGroup.add(new THREE.Mesh(mercGeo, mercMat));
+            currentModels['mercury'] = mercGroup;
+
+            // 3. VENERE
+            const venGroup = new THREE.Group();
+            const venTex = generatePhotorealisticTexture('venus');
+            const venGeo = new THREE.SphereGeometry(2.45, 64, 64);
+            const venMat = new THREE.MeshStandardMaterial({ map: venTex, roughness: 0.35, metalness: 0.05 });
+            venGroup.add(new THREE.Mesh(venGeo, venMat));
+            currentModels['venus'] = venGroup;
+
+            // 4. TERRA
+            const earthGroup = new THREE.Group();
+            const earthTex = generatePhotorealisticTexture('earth');
+            const earthGeo = new THREE.SphereGeometry(2.5, 64, 64);
+            const earthMat = new THREE.MeshStandardMaterial({ map: earthTex, roughness: 0.45, metalness: 0.1 });
+            earthGroup.add(new THREE.Mesh(earthGeo, earthMat));
+
+            const cloudTex = generatePhotorealisticTexture('earth_clouds');
+            const cloudGeo = new THREE.SphereGeometry(2.53, 64, 64);
+            const cloudMat = new THREE.MeshStandardMaterial({ map: cloudTex, transparent: true, opacity: 0.7 });
+            earthCloudsMesh = new THREE.Mesh(cloudGeo, cloudMat);
+            earthGroup.add(earthCloudsMesh);
+            // 7. FASCIA DI ASTEROIDI (Disposta in modo ellittico e allineato, non circolare, per riflettere le vere orbite kepleriane)
+            const astGroup = new THREE.Group();
+            const asteroidCount = 1800;
+            
+            for (let i = 0; i < asteroidCount; i++) {
+                const angle = (i / asteroidCount) * Math.PI * 2;
+                
+                // Orbita ellittica realistica (semiasse maggiore e minore differenziati)
+                const semiMajorAxis = 2.8;
+                const semiMinorAxis = 2.1;
+                
+                // Aggiungiamo una leggera dispersione casuale per renderla naturale ma mantenendo l'allineamento ellittico
+                const rVariation = (Math.random() - 0.5) * 0.35;
+                const x = Math.cos(angle) * (semiMajorAxis + rVariation);
+                const z = Math.sin(angle) * (semiMinorAxis + rVariation);
+                const y = (Math.random() - 0.5) * 0.12;
+
+                const geomType = Math.random();
+                let asteroidGeo;
+                if (geomType < 0.33) {
+                    asteroidGeo = new THREE.DodecahedronGeometry(0.04 + Math.random() * 0.05, 0);
+                } else if (geomType < 0.66) {
+                    asteroidGeo = new THREE.IcosahedronGeometry(0.03 + Math.random() * 0.06, 0);
+                } else {
+                    asteroidGeo = new THREE.BoxGeometry(0.05 + Math.random() * 0.05, 0.03 + Math.random() * 0.04, 0.04 + Math.random() * 0.05);
+                }
+
+                const greyShade = 0.35 + Math.random() * 0.35;
+                const asteroidMat = new THREE.MeshStandardMaterial({ 
+                    color: new THREE.Color(greyShade, greyShade * 0.92, greyShade * 0.88), 
+                    roughness: 0.9, 
+                    metalness: 0.35 
+                });
+
+                const mesh = new THREE.Mesh(asteroidGeo, asteroidMat);
+                mesh.position.set(x, y, z);
+                mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+                
+                const scaleX = 0.6 + Math.random() * 1.3;
+                const scaleY = 0.5 + Math.random() * 1.1;
+                const scaleZ = 0.6 + Math.random() * 1.3;
+                mesh.scale.set(scaleX, scaleY, scaleZ);
+
+                astGroup.add(mesh);
+            }
+            currentModels['asteroids'] = astGroup;
+
+            // 8. GIOVE
+            const jupGroup = new THREE.Group();
+            const jupTex = generatePhotorealisticTexture('jupiter');
+            const jupGeo = new THREE.SphereGeometry(2.8, 64, 64);
+            const jupMat = new THREE.MeshStandardMaterial({ map: jupTex, roughness: 0.5 });
+            jupGroup.add(new THREE.Mesh(jupGeo, jupMat));
+            currentModels['jupiter'] = jupGroup;
+
+            // 9. SATURNO
+            const satGroup = new THREE.Group();
+            const satTex = generatePhotorealisticTexture('saturn');
+            const satGeo = new THREE.SphereGeometry(2.4, 64, 64);
+            const satMat = new THREE.MeshStandardMaterial({ map: satTex, roughness: 0.5 });
+            satGroup.add(new THREE.Mesh(satGeo, satMat));
+
+            const ringTex = generatePhotorealisticTexture('saturn_ring');
+            const ringGeo = new THREE.RingGeometry(2.9, 4.8, 64);
+            const ringMat = new THREE.MeshStandardMaterial({ map: ringTex, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.rotation.x = Math.PI / 2.2;
+            satGroup.add(ringMesh);
+            currentModels['saturn'] = satGroup;
+
+            // 10. URANO
+            const uranGroup = new THREE.Group();
+            const uranTex = generatePhotorealisticTexture('uranus');
+            const uranGeo = new THREE.SphereGeometry(2.4, 64, 64);
+            const uranMat = new THREE.MeshStandardMaterial({ map: uranTex, roughness: 0.3 });
+            uranGroup.add(new THREE.Mesh(uranGeo, uranMat));
+            uranGroup.rotation.z = Math.PI / 1.8;
+            currentModels['uranus'] = uranGroup;
+
+            // 11. NETTUNO
+            const nepGroup = new THREE.Group();
+            const nepTex = generatePhotorealisticTexture('neptune');
+            const nepGeo = new THREE.SphereGeometry(2.4, 64, 64);
+            const nepMat = new THREE.MeshStandardMaterial({ map: nepTex, roughness: 0.3 });
+            nepGroup.add(new THREE.Mesh(nepGeo, nepMat));
+            currentModels['neptune'] = nepGroup;
+        }
+
+        function update3DScene(key) {
+            while (planetGroup.children.length > 0) {
+                planetGroup.remove(planetGroup.children[0]);
+            }
+            if (currentModels[key]) {
+                planetGroup.add(currentModels[key]);
+            }
+        }
+
+        function onPointerDown(event) {
+            const startX = event.clientX;
+            const startY = event.clientY;
+
+            const onPointerUp = (upEvent) => {
+                window.removeEventListener('pointerup', onPointerUp);
+                const diffX = Math.abs(upEvent.clientX - startX);
+                const diffY = Math.abs(upEvent.clientY - startY);
+
+                if (diffX < 5 && diffY < 5) {
+                    mouse.x = (upEvent.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(upEvent.clientY / window.innerHeight) * 2 + 1;
+
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects(planetGroup.children, true);
+
+                    if (intersects.length > 0) {
+                        triggerPlanetClick();
+                    }
+                }
+            };
+
+            window.addEventListener('pointerup', onPointerUp);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (planetGroup) {
+                planetGroup.rotation.y += 0.002;
+            }
+
+            if (earthCloudsMesh) {
+                earthCloudsMesh.rotation.y += 0.003;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        window.onload = function() {
+            renderSlidesUI();
+            initThreeJS();
+        };
+    </script>
+</body>
+</html>

@@ -94,6 +94,8 @@ def main():
     shutil.copy(SRC / 'favicon.svg', out / 'favicon.svg')
     if (SRC / 'cubo-corse').is_dir():  # il gioco, copiato da strumenti/importa-cubo-corse.py
         shutil.copytree(SRC / 'cubo-corse', out / 'cubo-corse')
+    if (SRC / '3as').is_dir():  # vetrina hackathon 3AS senza cognomi (hackathon-ai-stem/vetrina/build.py --condivisione), noindex, fuori sitemap
+        shutil.copytree(SRC / '3as', out / '3as')
     if (SRC / 'blog' / 'img').is_dir():
         shutil.copytree(SRC / 'blog' / 'img', out / 'blog' / 'img')
     (out / 'CNAME').write_text('gabrielesalvi.com\n')
