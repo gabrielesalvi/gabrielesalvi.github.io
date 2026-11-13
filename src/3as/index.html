@@ -62,7 +62,71 @@ td a{text-decoration:none} td a:hover b{text-decoration:underline}
 footer{padding:40px 0 56px;color:var(--mut);font-size:14px}
 @media (max-width:960px){.card{grid-template-columns:1fr} .score{border-left:0;border-top:1px solid var(--line)} .shot{aspect-ratio:16/10;min-height:0}}
 @media (prefers-reduced-motion:reduce){.shot img{transition:none}}
-</style></head><body>
+/* pre-pagina: «Scopri i risultati» → conto alla rovescia → podio → pagina */
+body.intro{overflow:hidden}
+#intro{position:fixed;inset:0;z-index:50;height:100vh;height:100dvh;background:radial-gradient(120% 80% at 50% 0%,#262A55 0%,var(--ink) 60%);color:var(--paper);
+  display:grid;place-items:center;overflow:hidden;transition:transform .8s cubic-bezier(.7,0,.2,1),opacity .8s;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
+#intro.out{transform:translateY(-100%)}
+#intro .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(243,239,230,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(243,239,230,.05) 1px,transparent 1px);
+  background-size:44px 44px;mask-image:radial-gradient(circle at 50% 40%,#000 0,transparent 75%);-webkit-mask-image:radial-gradient(circle at 50% 40%,#000 0,transparent 75%)}
+#intro canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#intro .skip{position:absolute;top:max(14px,env(safe-area-inset-top));right:16px;background:none;border:0;color:#9C9AB2;font:700 12px 'JetBrains Mono',monospace;
+  letter-spacing:.12em;text-transform:uppercase;padding:10px;cursor:pointer;z-index:3}
+#intro .skip:hover{color:var(--paper)}
+.st{position:absolute;inset:0;display:grid;place-items:center;padding:24px 16px;transition:opacity .45s,transform .45s}
+.st.hide{opacity:0;transform:scale(.94);pointer-events:none}
+.hero{text-align:center;max-width:720px}
+.hero .eyebrow{color:var(--or2)}
+.hero h1{font-size:clamp(44px,11vw,104px);line-height:.95;margin:14px 0 16px}
+.hero h1 em{font-style:normal;color:var(--or2)}
+.hero p{color:#C9C7D6;margin:0 auto 30px;max-width:30ch;font-size:clamp(16px,4.2vw,19px)}
+.go{appearance:none;border:0;cursor:pointer;background:var(--or2);color:var(--ink);font:800 clamp(19px,5vw,24px) 'Bricolage Grotesque',sans-serif;letter-spacing:-.01em;
+  padding:18px 34px;min-height:60px;border-radius:999px;box-shadow:0 0 0 0 rgba(255,91,31,.55);animation:pulse 2s infinite;transition:transform .15s}
+.go:hover{transform:translateY(-2px)} .go:active{transform:scale(.97)}
+.go:focus-visible{outline:3px solid var(--paper);outline-offset:4px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,91,31,.55)}70%{box-shadow:0 0 0 22px rgba(255,91,31,0)}100%{box-shadow:0 0 0 0 rgba(255,91,31,0)}}
+.cd{font:800 clamp(160px,44vw,300px)/1 'Bricolage Grotesque',sans-serif;color:var(--or2);opacity:0}
+.cd.pop{animation:pop .62s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes pop{0%{opacity:0;transform:scale(.3)}35%{opacity:1;transform:scale(1.08)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+.podwrap{width:min(860px,100%);text-align:center}
+.podwrap .eyebrow{color:var(--or2);margin-bottom:6px}
+.podwrap h2{font-size:clamp(30px,7vw,52px);color:var(--paper);margin:0 0 clamp(14px,3vh,28px)}
+.pod{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:clamp(6px,2vw,16px);height:clamp(300px,58dvh,460px)}
+.col{display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0}
+.who,.sc{opacity:0;transform:translateY(12px);transition:opacity .45s .45s,transform .45s .45s}
+.who b{display:block;font:800 clamp(15px,3.9vw,24px)/1.1 'Bricolage Grotesque',sans-serif;overflow-wrap:anywhere}
+.who span{display:block;color:#A9A7BE;font-size:clamp(12px,3vw,15px);line-height:1.25;margin-top:3px}
+.sc{font:700 clamp(22px,6vw,40px) 'JetBrains Mono',monospace;color:var(--paper);margin:6px 0 8px}
+.p1 .sc{color:var(--or2);font-size:clamp(28px,8vw,54px)}
+.bar{transform:scaleY(0);transform-origin:bottom;transition:transform .7s cubic-bezier(.2,.8,.2,1);border-radius:14px 14px 0 0;display:flex;justify-content:center;padding-top:12px;
+  background:linear-gradient(180deg,#3A3F7A,#22264D);font:800 clamp(26px,7vw,48px) 'Bricolage Grotesque',sans-serif;color:var(--paper)}
+.p1 .bar{height:52%;background:linear-gradient(180deg,var(--or2),#C93D0E);color:var(--ink)}
+.p2 .bar{height:36%} .p3 .bar{height:24%}
+.col.on .bar{transform:scaleY(1)} .col.on .who,.col.on .sc{opacity:1;transform:none}
+.next{margin-top:clamp(14px,3vh,26px);opacity:0;transition:opacity .5s;background:none;border:2px solid rgba(243,239,230,.35);color:var(--paper);
+  font:700 16px 'Atkinson Hyperlegible',sans-serif;padding:12px 22px;min-height:48px;border-radius:999px;cursor:pointer}
+.next.on{opacity:1} .next:hover{border-color:var(--paper)}
+@media (max-width:420px){.pod{grid-template-columns:1fr 1.1fr 1fr}.bar{border-radius:10px 10px 0 0}}
+@media (max-height:560px) and (orientation:landscape){.pod{height:62dvh}.podwrap h2{margin-bottom:8px}.hero h1{font-size:clamp(40px,9vh,80px)}}
+@media (prefers-reduced-motion:reduce){.go{animation:none}#intro,.st,.bar,.who,.sc,.next{transition:none!important}}
+
+</style></head><body class="intro">
+<div id="intro" role="dialog" aria-label="Scopri i risultati">
+  <div class="grid"></div><canvas></canvas>
+  <button class="skip" type="button">Salta</button>
+  <div class="st s-hero"><div class="hero">
+    <div class="eyebrow">3AS Liceo Scientifico · 5 novembre 2026</div>
+    <h1>Hackathon<br><em>AI e STEM</em></h1>
+    <p>Sette squadre, una mattina, sette progetti costruiti con l’IA. Chi ha vinto?</p>
+    <button class="go" type="button">Scopri i risultati</button>
+  </div></div>
+  <div class="st s-cd hide" aria-hidden="true"><div class="cd"></div></div>
+  <div class="st s-pod hide"><div class="podwrap">
+    <div class="eyebrow">Il podio</div><h2>E i vincitori sono…</h2>
+    <div class="pod"><div class="col p2"><div class="who"><b>Frictionless Dudes</b><span>Galleria del vento</span></div><div class="sc" data-v="35.3">0</div><div class="bar">2°</div></div><div class="col p1"><div class="who"><b>Error404</b><span>Memoria 3D</span></div><div class="sc" data-v="39.7">0</div><div class="bar">1°</div></div><div class="col p3"><div class="who"><b>Proxima Physis</b><span>Stellarator Alpha</span></div><div class="sc" data-v="33.6">0</div><div class="bar">3°</div></div></div>
+    <button class="next" type="button">Vedi tutta la classifica ↓</button>
+  </div></div>
+</div>
 <header><div class="wrap">
   <div class="eyebrow">Corso AI e STEM · 3AS Liceo Scientifico · 3-4-5 novembre 2026</div>
   <h1>Hackathon AI e STEM:<br><em>i progetti e i risultati</em></h1>
@@ -195,4 +259,91 @@ footer{padding:40px 0 56px;color:var(--mut);font-size:14px}
 </div></section>
 
 <footer><div class="wrap">Hackathon AI e STEM · 5 novembre 2026 · le pagine sono quelle consegnate dalle squadre, senza modifiche; dai PDF sono stati tolti solo i nomi degli studenti.</div></footer>
+<script>
+(function () {
+  var I = document.getElementById('intro');
+  if (!I) return;
+  var B = document.body, RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (s) { return I.querySelector(s); };
+  var timers = [], done = false;
+  function later(f, ms) { timers.push(setTimeout(f, ms)); }
+  function close() {
+    if (done) return; done = true; mark();
+    timers.forEach(clearTimeout);
+    I.classList.add('out');
+    B.classList.remove('intro');
+    setTimeout(function () { I.remove(); }, RM ? 0 : 850);
+    window.scrollTo(0, 0);
+  }
+  // link diretto a una scheda (#s4) o già vista in questa sessione (es. tornando da un progetto): niente pre-pagina
+  var seen = false;
+  try { seen = sessionStorage.getItem('vetrina-intro') === '1'; } catch (e) {}
+  if (location.hash || seen) { I.remove(); B.classList.remove('intro'); return; }
+  function mark() { try { sessionStorage.setItem('vetrina-intro', '1'); } catch (e) {} }
+
+  // ---- coriandoli
+  var cv = $('canvas'), cx = cv.getContext('2d'), parts = [], raf = 0;
+  function size() { var r = devicePixelRatio || 1; cv.width = innerWidth * r; cv.height = innerHeight * r; cx.setTransform(r, 0, 0, r, 0, 0); }
+  function confetti() {
+    if (RM) return;
+    size();
+    var C = ['#FF5B1F', '#F3EFE6', '#2B47E0', '#FFC24B', '#7FD6B8'], n = innerWidth < 600 ? 110 : 190;
+    for (var k = 0; k < n; k++) parts.push({
+      x: innerWidth / 2 + (Math.random() - .5) * 80, y: innerHeight * .42,
+      vx: (Math.random() - .5) * (innerWidth < 600 ? 13 : 20), vy: -Math.random() * 15 - 5,
+      w: 6 + Math.random() * 6, h: 8 + Math.random() * 8, r: Math.random() * 6, vr: (Math.random() - .5) * .35,
+      c: C[k % C.length], life: 0
+    });
+    var t0 = performance.now();
+    (function step(t) {
+      cx.clearRect(0, 0, innerWidth, innerHeight);
+      parts.forEach(function (p) {
+        p.vy += .38; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r); cx.fillStyle = p.c;
+        cx.globalAlpha = Math.max(0, 1 - (t - t0) / 3600);
+        cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.r * 2))); cx.restore();
+      });
+      if (t - t0 < 3600 && !done) raf = requestAnimationFrame(step); else cx.clearRect(0, 0, innerWidth, innerHeight);
+    })(t0);
+  }
+  // ---- punteggio che sale
+  function count(el) {
+    var v = parseFloat(el.dataset.v), t0 = performance.now(), D = RM ? 0 : 900;
+    (function step(t) {
+      var k = D ? Math.min(1, (t - t0) / D) : 1, x = v * (1 - Math.pow(1 - k, 3));
+      el.textContent = x.toFixed(1).replace('.', ',');
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+  function show(sel) { var c = $(sel); c.classList.add('on'); count(c.querySelector('.sc')); }
+
+  function podium() {
+    $('.s-pod').classList.remove('hide');
+    if (RM) { show('.p3'); show('.p2'); show('.p1'); $('.next').classList.add('on'); return; }
+    later(function () { show('.p3'); }, 150);
+    later(function () { show('.p2'); }, 1000);
+    later(function () { show('.p1'); }, 2050);
+    later(confetti, 2500);
+    later(function () { $('.next').classList.add('on'); }, 3300);
+    later(close, 7000);
+  }
+  function start() {
+    $('.s-hero').classList.add('hide');
+    if (RM) return podium();
+    var cd = $('.cd'), n = 3;
+    $('.s-cd').classList.remove('hide');
+    (function tick() {
+      if (n === 0) { $('.s-cd').classList.add('hide'); return podium(); }
+      cd.textContent = n; cd.classList.remove('pop'); void cd.offsetWidth; cd.classList.add('pop');
+      n--; later(tick, 650);
+    })();
+  }
+  $('.go').addEventListener('click', start);
+  $('.next').addEventListener('click', close);
+  $('.skip').addEventListener('click', close);
+  addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  addEventListener('resize', function () { if (parts.length) size(); });
+})();
+
+</script>
 </body></html>
