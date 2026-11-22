@@ -39,6 +39,16 @@ ICONE = {
 }
 
 
+RIMANDO_CC = '''<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cubo Corse</title><meta name="robots" content="noindex">
+<link rel="canonical" href="https://cubocorse.gabrielesalvi.com/">
+<meta http-equiv="refresh" content="0; url=https://cubocorse.gabrielesalvi.com/">
+<script>location.replace('https://cubocorse.gabrielesalvi.com/' + location.search + location.hash)</script>
+<style>body{font:16px/1.5 system-ui,sans-serif;background:#111;color:#eee;display:grid;place-items:center;min-height:100vh;margin:0}a{color:#9cf}</style>
+</head><body><p>Cubo Corse si è trasferito: <a href="https://cubocorse.gabrielesalvi.com/">cubocorse.gabrielesalvi.com</a></p></body></html>
+'''
+
 def leggi_articolo(f: Path, bozze: bool):
     testo = f.read_text(encoding='utf-8')
     m = re.match(r'^---\n(.*?)\n---\n(.*)$', testo, re.S)
@@ -92,8 +102,9 @@ def main():
     # file statici
     shutil.copytree(SRC / 'assets', out / 'assets')
     shutil.copy(SRC / 'favicon.svg', out / 'favicon.svg')
-    if (SRC / 'cubo-corse').is_dir():  # il gioco, copiato da strumenti/importa-cubo-corse.py
-        shutil.copytree(SRC / 'cubo-corse', out / 'cubo-corse')
+    # 22-11: il gioco ora vive su cubocorse.gabrielesalvi.com; il vecchio indirizzo /cubo-corse/ rimanda lì
+    (out / 'cubo-corse').mkdir()
+    (out / 'cubo-corse' / 'index.html').write_text(RIMANDO_CC, encoding='utf-8')
     if (SRC / '3as').is_dir():  # vetrina hackathon 3AS senza cognomi (hackathon-ai-stem/vetrina/build.py --condivisione), noindex, fuori sitemap
         shutil.copytree(SRC / '3as', out / '3as')
     if (SRC / 'blog' / 'img').is_dir():
@@ -155,7 +166,7 @@ def main():
         f'<title>Gabriele Salvi · Blog</title><link>{SITO}/blog/</link><description>{escape(DESCRIZIONE)}</description>'
         f'<language>it</language><atom:link href="{SITO}/blog/feed.xml" rel="self" type="application/rss+xml"/>'
         f'{voci}</channel></rss>\n', encoding='utf-8')
-    urls = ['/', '/en/', '/progetti/', '/en/projects/', '/cubo-corse/', '/blog/'] + [x['url'] for x in pubblici]
+    urls = ['/', '/en/', '/progetti/', '/en/projects/', '/blog/'] + [x['url'] for x in pubblici]
     (out / 'sitemap.xml').write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
         + ''.join(f'<url><loc>{SITO}{u}</loc></url>' for u in urls) + '</urlset>\n', encoding='utf-8')
