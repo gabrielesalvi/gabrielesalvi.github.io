@@ -19,7 +19,15 @@ it:
       nota: Da PC, con tastiera e mouse. Meglio con una scheda video dedicata.
       tag: [three.js, WebGL, Simulazione, Agenti AI]
       link:
-        - {testo: Gioca ora, url: /cubo-corse/, interno: true}
+        - {testo: Gioca ora, url: "https://cubocorse.gabrielesalvi.com/"}
+    - id: studybuddy
+      nome: StudyBuddy
+      anno: 2023 – oggi
+      breve: App per universitari
+      testo: "L'app all-in-one per studenti universitari, che ho co-fondato. Mi occupo di amministrazione, business, marketing e design."
+      tag: [Startup, Prodotto, Design]
+      link:
+        - {testo: studybuddy.it, url: "https://studybuddy.it"}
     - id: cabchat
       nome: CabChat
       anno: "2023"
@@ -29,12 +37,6 @@ it:
       tag: [Riconoscimento vocale, Telegram, Hackathon]
       link:
         - {testo: Presentazione, url: "https://www.hackathon.bz.it/project/studybuddy"}
-    - id: studybuddy
-      nome: StudyBuddy
-      anno: 2023 – oggi
-      breve: App per universitari
-      testo: "L'app all-in-one per studenti universitari, che ho co-fondato. Mi occupo di amministrazione, business, marketing e design."
-      tag: [Startup, Prodotto, Design]
     - id: tesi
       nome: Analisi dell'attività di movimento
       anno: "2024"
@@ -59,7 +61,15 @@ en:
       nota: On a computer, with keyboard and mouse. A dedicated graphics card helps. The game's menus are in Italian.
       tag: [three.js, WebGL, Simulation, AI agents]
       link:
-        - {testo: Play now, url: /cubo-corse/, interno: true}
+        - {testo: Play now, url: "https://cubocorse.gabrielesalvi.com/"}
+    - id: studybuddy
+      nome: StudyBuddy
+      anno: 2023 – present
+      breve: App for university students
+      testo: "The all-in-one app for university students, which I co-founded. I look after administration, business development, marketing and design."
+      tag: [Startup, Product, Design]
+      link:
+        - {testo: studybuddy.it, url: "https://studybuddy.it"}
     - id: cabchat
       nome: CabChat
       anno: "2023"
@@ -69,12 +79,6 @@ en:
       tag: [Speech recognition, Telegram, Hackathon]
       link:
         - {testo: Project page, url: "https://www.hackathon.bz.it/project/studybuddy"}
-    - id: studybuddy
-      nome: StudyBuddy
-      anno: 2023 – present
-      breve: App for university students
-      testo: "The all-in-one app for university students, which I co-founded. I look after administration, business development, marketing and design."
-      tag: [Startup, Product, Design]
     - id: tesi
       nome: Physical activity data analysis
       anno: "2024"

@@ -12,7 +12,7 @@ it:
   esperienze:
     - {ruolo: Consulente AI, ente: Autonomo, date: Mag 2025 – oggi, inizio: "2025-05", breve: MicroLabX, testo: "Nell'ambito del progetto MicroLabX di KPS Financial Lab, mi occupo di sviluppare agenti AI autonomi per aziende."}
     - {ruolo: Formatore AI, ente: Autonomo, date: Nov 2024 – oggi, inizio: "2024-11", breve: Aziende e scuole, testo: "Tengo lezioni e corsi per aziende e scuole superiori sull'AI generativa, la sua storia, gli strumenti e le applicazioni in ambito educativo e professionale."}
-    - {ruolo: Co-fondatore, ente: StudyBuddy, date: Gen 2023 – oggi, inizio: "2023-01", breve: StudyBuddy, testo: "L'app all-in-one per studenti universitari. Gestisco amministrazione, business, marketing e design."}
+    - {ruolo: Co-fondatore, ente: StudyBuddy, date: Gen 2023 – oggi, inizio: "2023-01", breve: StudyBuddy, link: "https://studybuddy.it", etichetta: studybuddy.it, testo: "L'app all-in-one per studenti universitari. Gestisco amministrazione, business, marketing e design."}
     - {ruolo: Tirocinante progettista meccanico, ruolo_breve: Tirocinio, ente: ARM SpA, date: Giu 2024 – Set 2024, inizio: "2024-06", breve: ARM SpA · CFD, testo: "Tirocinio extracurriculare presso una fonderia di alluminio come progettista meccanico, con focus sulla fluidodinamica computazionale (CFD)."}
   istruzione:
     - {titolo: Ingegneria Meccanica, dove: "Laurea triennale, Università degli Studi di Brescia", date: 2018 – 2024}
@@ -31,7 +31,7 @@ en:
   esperienze:
     - {ruolo: AI Consultant, ente: Freelance, date: May 2025 – present, inizio: "2025-05", breve: MicroLabX, testo: "As part of KPS Financial Lab's MicroLabX project, I develop autonomous AI agents for businesses."}
     - {ruolo: AI Trainer, ente: Freelance, date: Nov 2024 – present, inizio: "2024-11", breve: Companies and schools, testo: "I teach lessons and courses for companies and high schools on generative AI: its history, its tools and its applications in education and in the workplace."}
-    - {ruolo: Co-founder, ente: StudyBuddy, date: Jan 2023 – present, inizio: "2023-01", breve: StudyBuddy, testo: "The all-in-one app for university students. I am responsible for administration, business development, marketing and design."}
+    - {ruolo: Co-founder, ente: StudyBuddy, date: Jan 2023 – present, inizio: "2023-01", breve: StudyBuddy, link: "https://studybuddy.it", etichetta: studybuddy.it, testo: "The all-in-one app for university students. I am responsible for administration, business development, marketing and design."}
     - {ruolo: Mechanical Design Intern, ruolo_breve: Internship, ente: ARM SpA, date: Jun 2024 – Sep 2024, inizio: "2024-06", breve: ARM SpA · CFD, testo: "Internship as a mechanical designer at an aluminium foundry, focused on computational fluid dynamics (CFD)."}
   istruzione:
     - {titolo: Mechanical Engineering, dove: "Bachelor's Degree, University of Brescia", date: 2018 – 2024}

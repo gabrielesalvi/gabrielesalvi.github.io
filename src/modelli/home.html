@@ -107,7 +107,7 @@
   <span class="mono soft">{{ t.cv_eti }}</span>
   <h2>{{ t.cv_h2|safe }}</h2>
   {% for e in c.esperienze %}
-  <div class="esp"><span class="mono soft">{{ e.date }}</span><div><b>{{ e.ruolo }} · {{ e.ente }}</b><p>{{ e.testo }}</p></div></div>
+  <div class="esp"><span class="mono soft">{{ e.date }}</span><div><b>{{ e.ruolo }} · {{ e.ente }}</b><p>{{ e.testo }}{% if e.link is defined %} <a href="{{ e.link }}" rel="noopener" target="_blank">{{ e.etichetta }} ↗</a>{% endif %}</p></div></div>
   {% endfor %}
   <div class="duo">
     <div><h3 class="mono">{{ c.titoli.istruzione }}</h3>
